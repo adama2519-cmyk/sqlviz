@@ -10,7 +10,7 @@ Most schema tools make you learn a bespoke markup language (DBML, Mermaid) or fo
 
 - **Raw SQL in** — MySQL, PostgreSQL, SQLite flavoured DDL, including `PRIMARY KEY`, composite keys, `FOREIGN KEY` (inline and table-level), `REFERENCES`, `UNIQUE`, `AUTO_INCREMENT`, `DEFAULT`, `CHECK`, and quoted identifiers.
 - **Diagram out** — force-directed auto-layout, draggable tables, zoom & pan, relationship lines with FK badges.
-- **Export anywhere** — SVG, PNG, Mermaid (`erDiagram`), or normalized SQL.
+- **Export anywhere** — SVG, PNG, Mermaid (`erDiagram`), normalized SQL, or generate code: **Prisma schema**, **TypeScript interfaces**, and **Python (SQLAlchemy) models**.
 
 ## Features
 
@@ -18,6 +18,7 @@ Most schema tools make you learn a bespoke markup language (DBML, Mermaid) or fo
 - PK / FK / UNIQUE / AUTO_INCREMENT badges on columns.
 - Click a table to inspect every column (type, nullability, default, references).
 - Sample schemas to try instantly.
+- Code generation: Prisma, TypeScript, SQLAlchemy.
 - Fully privacy-first: nothing is uploaded, nothing is stored.
 
 ## Run locally

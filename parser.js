@@ -220,6 +220,13 @@
     }
     col.type = joinTokens(typeParts);
 
+    // SERIAL / BIGSERIAL / SMALLSERIAL are implicitly auto-incrementing and NOT NULL
+    const serialBt = col.type.replace(/\(.*\)/, '').trim().toUpperCase();
+    if (serialBt === 'SERIAL' || serialBt === 'BIGSERIAL' || serialBt === 'SMALLSERIAL') {
+      col.autoIncrement = true;
+      col.notNull = true;
+    }
+
     // constraints
     while (i < tokens.length) {
       const t = tokens[i];

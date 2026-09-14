@@ -107,6 +107,14 @@
             <button id="btn-export-png" class="btn">PNG</button>
             <button id="btn-export-mermaid" class="btn">Mermaid</button>
             <button id="btn-export-sql" class="btn">SQL</button>
+            <div class="dropdown">
+              <button id="btn-code" class="btn">Code ▾</button>
+              <div id="code-menu" class="dropdown-menu" hidden>
+                <button class="dd-item" data-format="prisma">Prisma schema</button>
+                <button class="dd-item" data-format="typescript">TypeScript</button>
+                <button class="dd-item" data-format="python">Python (SQLAlchemy)</button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="canvas-wrap">
@@ -160,6 +168,7 @@
 
   <script src="parser.js"></script>
   <script src="samples.js"></script>
+  <script src="generators.js"></script>
   <script src="diagram.js"></script>
   <script src="app.js"></script>
 </body>

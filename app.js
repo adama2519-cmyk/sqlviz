@@ -333,6 +333,29 @@
   $('#btn-export-mermaid').addEventListener('click', exportMermaid);
   $('#btn-export-sql').addEventListener('click', exportSQL);
 
+  // ---- code generators -----------------------------------------------------
+  function exportCode(format) {
+    if (!state.tables.length) { showToast('No tables to export'); return; }
+    const gen = { prisma: SchemaGen.prisma, typescript: SchemaGen.typescript, python: SchemaGen.python }[format];
+    const file = { prisma: 'schema.prisma', typescript: 'schema.ts', python: 'models.py' }[format];
+    const mime = { prisma: 'text/plain;charset=utf-8', typescript: 'text/typescript;charset=utf-8', python: 'text/x-python;charset=utf-8' }[format];
+    if (!gen) return;
+    downloadText(gen(state.tables), file, mime);
+  }
+  $('#btn-code').addEventListener('click', (e) => {
+    e.stopPropagation();
+    $('#code-menu').hidden = !$('#code-menu').hidden;
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.dropdown')) $('#code-menu').hidden = true;
+  });
+  $('#code-menu').addEventListener('click', (e) => {
+    const item = e.target.closest('.dd-item');
+    if (!item) return;
+    exportCode(item.dataset.format);
+    $('#code-menu').hidden = true;
+  });
+
   // ---- share link -----------------------------------------------------------
   function encodeShare(sql) {
     const bytes = new TextEncoder().encode(sql);
