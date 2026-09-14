@@ -333,8 +333,59 @@
   $('#btn-export-mermaid').addEventListener('click', exportMermaid);
   $('#btn-export-sql').addEventListener('click', exportSQL);
 
-  // initial render with the blog sample
-  editor.value = SQLVizSamples[0].sql;
+  // ---- share link -----------------------------------------------------------
+  function encodeShare(sql) {
+    const bytes = new TextEncoder().encode(sql);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function decodeShare(s) {
+    s = s.replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    const bin = atob(s);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  function showToast(msg) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => { t.hidden = true; }, 1800);
+  }
+  $('#btn-share').addEventListener('click', () => {
+    const url = location.origin + location.pathname + '#' + encodeShare(editor.value);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard'));
+    } else {
+      window.prompt('Copy this link:', url);
+    }
+  });
+
+  // ---- support modal --------------------------------------------------------
+  const modal = $('#support-modal');
+  const openModal = () => { modal.hidden = false; };
+  const closeModal = () => { modal.hidden = true; };
+  $('#btn-support').addEventListener('click', openModal);
+  $('#support-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  const amountRow = $('#amount-row');
+  amountRow.addEventListener('click', (e) => {
+    const b = e.target.closest('.amount');
+    if (!b) return;
+    amountRow.querySelectorAll('.amount').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    $('#support-amount').value = b.dataset.amt;
+  });
+
+  // initial render: shared schema from URL hash, else the blog sample
+  let initialSql = SQLVizSamples[0].sql;
+  if (location.hash && location.hash.length > 1) {
+    try { initialSql = decodeShare(location.hash.slice(1)); } catch (e) { /* ignore malformed hash */ }
+  }
+  editor.value = initialSql;
   render();
 
   window.SQLViz = { render, exportSQL, exportMermaid, exportSVG, exportPNG };

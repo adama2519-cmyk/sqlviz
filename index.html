@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SQLViz — SQL to ER Diagram, free &amp; private</title>
   <meta name="description" content="Paste raw SQL CREATE TABLE statements and get an instant, interactive ER diagram. Export to SVG, PNG, Mermaid or SQL. 100% client-side, no signup, your schema never leaves your browser." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="SQLViz — SQL to ER Diagram, free &amp; private" />
+  <meta property="og:description" content="Paste raw SQL, get an instant interactive ER diagram. Export to SVG, PNG, Mermaid or SQL. 100% client-side — your schema never leaves your browser." />
+  <meta property="og:url" content="https://adama2519-cmyk.github.io/sqlviz/" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="SQLViz — SQL to ER Diagram, free &amp; private" />
+  <meta name="twitter:description" content="Paste raw SQL, get an instant interactive ER diagram. Export to SVG, PNG, Mermaid or SQL." />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SQLViz","description":"Free, privacy-first tool that turns raw SQL CREATE TABLE statements into an interactive ER diagram with SVG/PNG/Mermaid/SQL export.","url":"https://adama2519-cmyk.github.io/sqlviz/","applicationCategory":"DeveloperApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -49,6 +57,7 @@
         </div>
         <span class="hint">scroll to zoom · drag background to pan · drag a table to move it</span>
         <div class="tb-group export-group">
+          <button id="btn-share" class="btn btn-ghost" title="Copy a shareable link to this schema">Copy link</button>
           <button id="btn-export-svg" class="btn">SVG</button>
           <button id="btn-export-png" class="btn">PNG</button>
           <button id="btn-export-mermaid" class="btn">Mermaid</button>
@@ -70,8 +79,38 @@
   </main>
 
   <footer class="foot">
-    SQLViz · free &amp; open · schema data is processed entirely in your browser
+    <span>SQLViz · free &amp; open · schema data is processed entirely in your browser</span>
+    <button id="btn-support" class="support-btn">☕ Support SQLViz</button>
   </footer>
+
+  <div id="support-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="support-title">
+      <button id="support-close" class="modal-close" aria-label="Close">&times;</button>
+      <h3 id="support-title">Support SQLViz</h3>
+      <p class="modal-text">SQLViz is free and open source. A one-time tip helps cover hosting and development — and keeps the tool free for everyone.</p>
+      <form id="support-form" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" rel="noopener">
+        <input type="hidden" name="cmd" value="_xclick">
+        <input type="hidden" name="business" value="info@ezaccounting.fi">
+        <input type="hidden" name="item_name" value="Support SQLViz">
+        <input type="hidden" name="currency_code" value="EUR">
+        <input type="hidden" name="no_shipping" value="1">
+        <input type="hidden" name="no_note" value="1">
+        <input type="hidden" name="return" value="https://adama2519-cmyk.github.io/sqlviz/">
+        <input type="hidden" name="cancel_return" value="https://adama2519-cmyk.github.io/sqlviz/">
+        <input type="hidden" id="support-amount" name="amount" value="5">
+        <div class="amount-row" id="amount-row">
+          <button type="button" class="amount" data-amt="3">€3</button>
+          <button type="button" class="amount active" data-amt="5">€5</button>
+          <button type="button" class="amount" data-amt="10">€10</button>
+          <button type="button" class="amount" data-amt="25">€25</button>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Donate with PayPal</button>
+      </form>
+      <p class="modal-note">Processed securely by PayPal · no account required</p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
 
   <script src="parser.js"></script>
   <script src="samples.js"></script>

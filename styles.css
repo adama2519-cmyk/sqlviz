@@ -215,9 +215,93 @@ textarea::placeholder { color: #4a5568; }
   border-top: 1px solid var(--border);
   color: var(--text-dim);
   font-size: 12px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   flex-shrink: 0;
 }
+.support-btn {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.support-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+/* modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal-overlay[hidden] { display: none; }
+.modal {
+  position: relative;
+  background: var(--bg2);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 24px;
+  width: 360px;
+  max-width: 92%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+}
+.modal h3 { margin: 0 0 8px; font-size: 17px; }
+.modal-text { color: var(--text-dim); font-size: 13px; line-height: 1.5; margin: 0 0 16px; }
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+}
+.amount-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.amount {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  border-radius: 7px;
+  padding: 9px 0;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.amount:hover { border-color: var(--accent); }
+.amount.active { background: var(--accent-soft); border-color: var(--accent); color: #fff; }
+.btn-primary { background: #0070ba; border-color: #0070ba; color: #fff; }
+.btn-primary:hover { background: #005ea6; border-color: #005ea6; }
+.btn-block { display: block; width: 100%; padding: 10px; font-size: 14px; }
+.modal-note { color: var(--text-dim); font-size: 11px; text-align: center; margin: 12px 0 0; }
+
+/* toast */
+.toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #fff;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  z-index: 200;
+}
+.toast[hidden] { display: none; }
 
 @media (max-width: 820px) {
   .layout { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
