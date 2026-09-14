@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQLViz — SQL to ER Diagram, free &amp; private</title>
+  <meta name="description" content="Paste raw SQL CREATE TABLE statements and get an instant, interactive ER diagram. Export to SVG, PNG, Mermaid or SQL. 100% client-side, no signup, your schema never leaves your browser." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">SQL<span class="accent">Viz</span></span>
+      <span class="tagline">SQL DDL &rarr; ER diagram</span>
+    </div>
+    <div class="privacy">
+      <span class="dot"></span> 100% client-side · no signup · your SQL never leaves this page
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="pane editor-pane">
+      <div class="pane-head">
+        <label for="sql-input">SQL DDL</label>
+        <div class="sample-row">
+          <select id="sample-select" title="Load a sample schema">
+            <option>Blog</option>
+            <option>E-commerce</option>
+          </select>
+          <button id="btn-sample" class="btn">Load sample</button>
+          <button id="btn-format" class="btn" title="Normalize and pretty-print the SQL">Format</button>
+          <button id="btn-clear" class="btn btn-ghost">Clear</button>
+        </div>
+      </div>
+      <textarea id="sql-input" spellcheck="false" placeholder="Paste your CREATE TABLE statements here…&#10;&#10;CREATE TABLE users (&#10;  id SERIAL PRIMARY KEY,&#10;  email VARCHAR(255) NOT NULL UNIQUE&#10;);"></textarea>
+      <div class="meta">
+        <span id="summary"></span>
+        <span id="errors"></span>
+      </div>
+    </section>
+
+    <section class="pane diagram-pane">
+      <div class="pane-head diagram-toolbar">
+        <div class="tb-group">
+          <button id="btn-zoom-out" class="btn btn-ghost" title="Zoom out">&minus;</button>
+          <button id="btn-fit" class="btn btn-ghost" title="Fit to view">Fit</button>
+          <button id="btn-zoom-in" class="btn btn-ghost" title="Zoom in">+</button>
+        </div>
+        <span class="hint">scroll to zoom · drag background to pan · drag a table to move it</span>
+        <div class="tb-group export-group">
+          <button id="btn-export-svg" class="btn">SVG</button>
+          <button id="btn-export-png" class="btn">PNG</button>
+          <button id="btn-export-mermaid" class="btn">Mermaid</button>
+          <button id="btn-export-sql" class="btn">SQL</button>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <svg id="diagram" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Entity relationship diagram"></svg>
+        <div id="empty-hint" class="empty-hint">
+          <div class="empty-icon">⌁</div>
+          <p>No tables yet.<br />Paste <code>CREATE TABLE</code> statements on the left.</p>
+        </div>
+        <aside id="detail" class="detail">
+          <button id="detail-close" class="detail-close" title="Close">&times;</button>
+          <div id="detail-body"></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    SQLViz · free &amp; open · schema data is processed entirely in your browser
+  </footer>
+
+  <script src="parser.js"></script>
+  <script src="samples.js"></script>
+  <script src="diagram.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
