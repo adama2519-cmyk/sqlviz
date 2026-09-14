@@ -412,6 +412,30 @@ textarea::placeholder { color: #4a5568; }
 }
 .toast[hidden] { display: none; }
 
+/* ---- auth / pro ---------------------------------------------------------- */
+.auth-area { display: flex; align-items: center; gap: 8px; margin-left: 4px; }
+.plan-badge { font-size: 10px; font-weight: 700; letter-spacing: .05em; padding: 2px 7px; border-radius: 999px; }
+.plan-badge.pro { background: rgba(232,181,74,.18); color: #e8b54a; border: 1px solid rgba(232,181,74,.4); }
+.plan-badge.free { background: var(--panel); color: var(--text-dim); border: 1px solid var(--border-strong); }
+.field-label { display: block; font-size: 12px; color: var(--text-dim); margin: 12px 0 5px; }
+.field { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border-strong); border-radius: 7px; padding: 9px 11px; font-size: 14px; font-family: var(--sans); }
+.field:focus { outline: none; border-color: var(--accent); }
+.form-error { color: #f1a8a8; font-size: 12.5px; min-height: 18px; margin-top: 8px; }
+.link-btn { display: block; width: 100%; margin-top: 14px; background: none; border: none; color: var(--accent); font-size: 13px; cursor: pointer; text-align: center; }
+.link-btn:hover { text-decoration: underline; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dim); margin: 12px 0; cursor: pointer; }
+.schemas-list { max-height: 320px; overflow: auto; margin: 4px 0 12px; }
+.schema-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+.schema-row:last-child { border-bottom: none; }
+.schema-title { font-weight: 600; font-size: 14px; }
+.schema-meta { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+.schema-actions { display: flex; gap: 6px; }
+.pub-tag { font-size: 10px; color: #4cc38a; border: 1px solid rgba(76,195,138,.4); padding: 1px 6px; border-radius: 999px; }
+.pub-tag.priv { color: var(--text-dim); border-color: var(--border-strong); }
+.muted { color: var(--text-dim); padding: 14px 0; }
+.pro-list { margin: 0 0 14px; padding-left: 18px; color: var(--text); font-size: 13.5px; line-height: 1.9; }
+.paypal-btn { margin-top: 8px; }
+
 /* ---- responsive --------------------------------------------------------- */
 @media (max-width: 960px) {
   .features { grid-template-columns: repeat(2, 1fr); }

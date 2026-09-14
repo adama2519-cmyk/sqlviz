@@ -411,5 +411,5 @@
   editor.value = initialSql;
   render();
 
-  window.SQLViz = { render, exportSQL, exportMermaid, exportSVG, exportPNG };
+  window.SQLViz = { render, exportSQL, exportMermaid, exportSVG, exportPNG, getTables: () => state.tables };
 })();

@@ -25,6 +25,7 @@
       <a href="#tool">Tool</a>
       <a href="https://github.com/adama2519-cmyk/sqlviz" target="_blank" rel="noopener">GitHub</a>
       <a href="#tool" class="btn btn-primary btn-sm">Open the tool</a>
+      <span id="auth-area" class="auth-area"></span>
     </div>
   </nav>
 
@@ -103,6 +104,7 @@
           </div>
           <div class="tb-group export-group">
             <button id="btn-share" class="btn btn-ghost" title="Copy a shareable link to this schema">Copy link</button>
+            <button id="btn-save" class="btn btn-primary" title="Save this schema to your account">Save</button>
             <button id="btn-export-svg" class="btn">SVG</button>
             <button id="btn-export-png" class="btn">PNG</button>
             <button id="btn-export-mermaid" class="btn">Mermaid</button>
@@ -160,7 +162,61 @@
         </div>
         <button type="submit" class="btn btn-primary btn-block">Donate with PayPal</button>
       </form>
-      <p class="modal-note">Processed securely by PayPal · no account required</p>
+      <p class="modal-note">One-time tip · processed securely by PayPal</p>
+    </div>
+  </div>
+
+  <div id="auth-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <button id="btn-auth-close" class="modal-close" aria-label="Close">&times;</button>
+      <h3 id="auth-mode">Sign in</h3>
+      <p class="modal-text">Save your schemas to the cloud and share them with a link.</p>
+      <form id="auth-form">
+        <label class="field-label" for="auth-email">Email</label>
+        <input id="auth-email" type="email" class="field" autocomplete="email" required />
+        <label class="field-label" for="auth-password">Password</label>
+        <input id="auth-password" type="password" class="field" autocomplete="current-password" minlength="8" required />
+        <div id="auth-error" class="form-error"></div>
+        <button id="auth-submit" type="submit" class="btn btn-primary btn-block">Continue</button>
+      </form>
+      <button id="auth-toggle" class="link-btn" data-mode="register">New here? Create an account</button>
+    </div>
+  </div>
+
+  <div id="save-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <button id="save-close" class="modal-close" aria-label="Close">&times;</button>
+      <h3>Save schema</h3>
+      <form id="save-form">
+        <label class="field-label" for="save-title">Name</label>
+        <input id="save-title" type="text" class="field" maxlength="200" required />
+        <label class="check"><input id="save-public" type="checkbox" /> Public — anyone with the link can view it</label>
+        <button type="submit" class="btn btn-primary btn-block">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="schemas-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <button id="schemas-close" class="modal-close" aria-label="Close">&times;</button>
+      <h3>My schemas</h3>
+      <div id="schemas-list" class="schemas-list"></div>
+      <button id="btn-go-pro" class="link-btn">Upgrade to Pro for unlimited schemas &rarr;</button>
+    </div>
+  </div>
+
+  <div id="upgrade-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <button id="upgrade-close" class="modal-close" aria-label="Close">&times;</button>
+      <h3>Upgrade to Pro</h3>
+      <ul class="pro-list">
+        <li>Unlimited saved schemas</li>
+        <li>Private schemas</li>
+        <li>Priority support</li>
+      </ul>
+      <p id="upgrade-note" class="modal-text"></p>
+      <button id="btn-pay-stripe" class="btn btn-primary btn-block">Pay with card (Stripe)</button>
+      <button id="btn-pay-paypal" class="btn btn-block paypal-btn">Pay with PayPal</button>
     </div>
   </div>
 
@@ -171,5 +227,6 @@
   <script src="generators.js"></script>
   <script src="diagram.js"></script>
   <script src="app.js"></script>
+  <script src="pro.js"></script>
 </body>
 </html>
