@@ -236,8 +236,15 @@
       api('/api/me').then(d => { state.user = d.user; localStorage.setItem('sqlviz_user', JSON.stringify(d.user)); renderHeader(); })
         .catch(() => clearAuth());
     }
-    // handle checkout return
-    if (/[?&]checkout=success/.test(location.search)) {
+    // handle checkout return: PayPal redirects back with ?token=<orderId>, Stripe with ?checkout=success
+    const qs = new URLSearchParams(location.search);
+    const paypalOrderId = qs.get('token');
+    if (paypalOrderId && state.token) {
+      api('/api/checkout/paypal/capture', { method: 'POST', body: JSON.stringify({ orderId: paypalOrderId }) })
+        .then(() => api('/api/me'))
+        .then(d => { saveAuth(state.token, d.user); toast('Payment complete — you are now Pro!'); })
+        .catch(e => toast('Payment capture failed: ' + e.message));
+    } else if (/[?&]checkout=success/.test(location.search)) {
       if (state.token) api('/api/me').then(d => { saveAuth(state.token, d.user); toast('Thanks! Your plan is now Pro.'); }).catch(() => {});
     }
   }
