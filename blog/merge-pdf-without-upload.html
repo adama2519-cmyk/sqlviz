@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to merge PDF files without uploading them | SQLViz</title>
+  <meta name="description" content="Merge several PDFs into one without uploading them. How browser-based merging works, how to get the page order right, and what to watch out for." />
+  <link rel="canonical" href="https://sqlviz.app/blog/merge-pdf-without-upload.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How to merge PDF files without uploading them" />
+  <meta property="og:description" content="Merge several PDFs into one without uploading them." />
+  <meta property="og:url" content="https://sqlviz.app/blog/merge-pdf-without-upload.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"How to merge PDF files without uploading them","description":"Merge several PDFs into one without uploading them.","url":"https://sqlviz.app/blog/merge-pdf-without-upload.html","author":{"@type":"Organization","name":"SQLViz"},"publisher":{"@type":"Organization","name":"SQLViz"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://sqlviz.app/blog/merge-pdf-without-upload.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL → ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>How to merge PDF files without uploading them</h1>
+    <p class="post-meta">SQLViz · September 2026</p>
+
+    <p>Most free merge sites work the same way. You pick your files, they travel over the network to a server you do not control, the server runs the merge, and you download the result back. For a two-page invoice that is fine. For a signed contract, a passport scan or a client's tax return, you have handed a copy of a private document to a stranger and you have no way to know what happens to it afterwards.</p>
+
+    <p>That is the part these sites rarely spell out. Some delete uploaded files after an hour, some keep them longer, and the terms of service usually mention processing by third parties or retention for service improvement. You cannot verify any of that from the outside. The document left your machine, and that is the only fact you control.</p>
+
+    <h2>What a browser can do on its own</h2>
+
+    <p>A modern browser can read a PDF, split it into pages, reorder them and write a new PDF without any server involved. The format is just a structured file, and JavaScript running in the page can build one in memory. When a merge happens entirely inside the page, your file never touches a network connection. The work runs on your own CPU, and the finished document exists as a blob in the browser before you save it to disk.</p>
+
+    <p>That is how the <a href="../pdf-tools/">PDF tools on SQLViz</a> are built. You can open your browser's developer tools, watch the network tab, and merge a file: no request carries the document anywhere. The page loads once, and everything after that is local.</p>
+
+    <h2>Merging step by step</h2>
+
+    <p>The workflow is short because there is nothing to configure.</p>
+
+    <ol>
+      <li><strong>Open the merge tool.</strong> Go to <a href="../pdf-tools/">the PDF tools page</a> and pick Merge PDF. It is one of the free tools, so there is no trial counter and no account.</li>
+      <li><strong>Select your files.</strong> Use the file picker or drag the PDFs onto the drop zone. You can add them in any order, because you will set the order next. Everything stays in the page.</li>
+      <li><strong>Reorder with the arrows.</strong> Each file appears in a list with up and down arrows. Move each document to the position you want. The merge follows that list from top to bottom, so the first item becomes the first pages of the result.</li>
+      <li><strong>Merge and download.</strong> Press the merge button. The browser builds the combined PDF in memory, then hands it to you as a download. Save it wherever you keep the originals.</li>
+    </ol>
+
+    <p>The whole thing takes a few seconds for typical documents. There is no upload progress bar because there is no upload.</p>
+
+    <h2>Practical tips that save time later</h2>
+
+    <p><strong>Get the page order right before you merge, not after.</strong> Read the list against the document you actually want. A merged PDF is one file, so if the pages end up wrong you either split it apart again or start over. Ten seconds of checking the arrows saves a second pass.</p>
+
+    <p><strong>Expect two different looks when you mix scanned and digital pages.</strong> A scanned page is usually a large image; a page produced by a word processor is mostly text. Merge them and the file size is dominated by the scans, while the two halves look different: one slightly fuzzy against a grey background, the other crisp and white. That is normal. If it bothers you, running the finished file through <a href="compress-pdf-private.html">the compress tool</a> can bring the scanned parts down without touching the digital text.</p>
+
+    <p><strong>Rename your files before you start.</strong> Merge "scan001.pdf" and "document (2).pdf" and the download gets a forgettable name. Six months later you will not know which contract it was. Rename the inputs, or rename the output the moment it lands in your downloads folder.</p>
+
+    <p><strong>Add up the pages and check the total.</strong> Total the page counts of the inputs, then check the page count the merged file reports. If the numbers disagree, something failed to parse. Five seconds of arithmetic catches the rare broken file before you send it to a client.</p>
+
+    <p><strong>Your originals stay untouched.</strong> The merge reads the files you selected and writes a new one. It does not modify, move or delete the originals, so a bad result costs you nothing but the time to merge again from the same inputs.</p>
+
+    <p><strong>Check whether the result is searchable.</strong> Pages that were scans stay images after merging, so Ctrl+F will not find words on them. If you need those pages to be selectable text, <a href="pdf-to-jpg-private.html">converting PDF pages to images</a> moves in the wrong direction; that needs OCR, which is a separate job.</p>
+
+    <h2>When merging is the wrong move</h2>
+
+    <p>If you need a few pages out of one document, use Split PDF rather than merging and then deleting. If a document arrived sideways, Rotate PDF fixes the orientation in one step. If the file is simply too big to email, Compress PDF is the right tool. Merging is for when you genuinely want one document made of several, and reaching for the wrong tool first usually means doing the work twice.</p>
+
+    <h2>Honest limits</h2>
+
+    <p>Because everything runs on your device, the size of file you can merge depends on your machine's memory, not on a server quota. A laptop with plenty of RAM handles large documents comfortably. An older phone with a browser full of open tabs may struggle with a hundred-megabyte scan. If a big merge fails, close other tabs and try again, or work in two passes: combine half the files, then merge that result with the rest.</p>
+
+    <p>There is also nobody to fall back on. Nothing is stored for you, so if you close the tab before downloading, the merged file is gone and you start over. Download it as soon as it is ready, and keep the originals until you have checked the result.</p>
+
+    <p>For documents you would not email to a stranger, that trade is the whole point. The file never leaves your device, so there is no upload to trust and nothing to take on faith. If you spend your day moving data around, the same local-first idea applies to <a href="../">turning SQL CREATE TABLE statements into an ER diagram</a>: paste the schema, get the picture, nothing sent anywhere.</p>
+
+    <div class="post-cta">
+      <h3>Try it, nothing gets uploaded</h3>
+      <p>Drop your PDFs into the merge tool and reorder them with the arrows. Your files stay on your device.</p>
+      <a class="btn btn-primary" href="../pdf-tools/">Open the PDF tools</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="pdf-to-jpg-private.html">Convert PDF to JPG without sending your file anywhere</a></li>
+        <li><a href="compress-pdf-private.html">Compress a PDF without uploading it</a></li>
+        <li><a href="sql-to-er-diagram.html">From CREATE TABLE to a clear ER diagram</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz · free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL → ER diagram</a>
+  </footer>
+</body>
+</html>

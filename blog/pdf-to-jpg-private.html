@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Convert PDF to JPG without sending your file anywhere | SQLViz</title>
+  <meta name="description" content="Turn PDF pages into JPG images in your browser. What resolution to pick, when images beat PDFs, and the limits of client-side rendering." />
+  <link rel="canonical" href="https://sqlviz.app/blog/pdf-to-jpg-private.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Convert PDF to JPG without sending your file anywhere" />
+  <meta property="og:description" content="Turn PDF pages into JPG images in your browser." />
+  <meta property="og:url" content="https://sqlviz.app/blog/pdf-to-jpg-private.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Convert PDF to JPG without sending your file anywhere","description":"Turn PDF pages into JPG images in your browser.","url":"https://sqlviz.app/blog/pdf-to-jpg-private.html","author":{"@type":"Organization","name":"SQLViz"},"publisher":{"@type":"Organization","name":"SQLViz"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://sqlviz.app/blog/pdf-to-jpg-private.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL → ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>Convert PDF to JPG without sending your file anywhere</h1>
+    <p class="post-meta">SQLViz · September 2026</p>
+
+    <h2>When you actually need a JPG instead of a PDF</h2>
+    <p>A PDF is a document. A JPG is a picture. Most of the time the PDF is what you want: it keeps text selectable, holds pages at a fixed size, and opens the same way everywhere. But there are places that will not take one.</p>
+    <ul>
+      <li>A form that only accepts JPG or PNG and rejects your PDF with "invalid file type".</li>
+      <li>A slide deck or a presentation tool where you paste each page in as an image.</li>
+      <li>A thumbnail, a preview image for a link, or a cover image for a listing.</li>
+      <li>A chat app where sending a 40-page PDF is worse than sending the two pages someone actually asked about.</li>
+      <li>A support ticket where the person on the other end wants to look at the page without downloading anything.</li>
+    </ul>
+    <p>In all of those cases the file has to become a raster image. The only real question is how you get there without handing the document to a stranger's server. If your PDF holds a contract, an ID scan, a payslip or a medical note, "upload and convert" means a copy now sits on hardware you do not control. Converting in the browser avoids that completely.</p>
+
+    <h2>What your browser actually does when it converts</h2>
+    <p>There is no magic in it. A modern browser ships with a PDF renderer and a canvas. When you open a file in a client-side converter, the page is parsed locally, drawn onto a canvas at the size you asked for, and then exported as JPEG. The bytes you download are produced by your own machine.</p>
+    <p>That is also why the tool keeps working offline once the page has loaded. Pull your network cable out, pick a file, convert it. It still works, because there was never a server in the loop. A server-based converter obviously does not behave that way.</p>
+
+    <h2>Which resolution to pick</h2>
+    <p>The <a href="../pdf-tools/">PDF to JPG tool</a> offers 96, 150, 200 and 300 DPI. Those numbers are a real trade-off between sharpness and file size. Roughly, for an A4 page:</p>
+    <ul>
+      <li><strong>96 DPI:</strong> about 794 by 1123 pixels. Screen only. Fine for a phone preview, a thumbnail or a quick look in chat. Smallest files by a wide margin.</li>
+      <li><strong>150 DPI:</strong> about 1240 by 1754 pixels. The default you want most of the time. Sharp on a laptop screen, still readable when printed small, and a fraction of the size of 300 DPI.</li>
+      <li><strong>200 DPI:</strong> about 1654 by 2339 pixels. For when the image will be studied on a large screen or lightly edited afterwards. Noticeably heavier.</li>
+      <li><strong>300 DPI:</strong> about 2480 by 3508 pixels. Print quality. This is the number a print shop means when it asks for high resolution, and it is roughly ten times the pixel count of 96 DPI.</li>
+    </ul>
+    <p>File size follows pixel count. 300 DPI is not "safer" than 150 DPI in any general sense. It is bigger, slower to export, slower to upload to wherever it is going, and slower for the recipient to open. Choose it when the image will be printed or zoomed into, not as a blanket default.</p>
+    <p>A simple rule: if the destination is a screen, take 150 DPI. If the destination is a printer, take 300. If it is a chat message nobody will zoom into, 96 is enough.</p>
+
+    <h2>Why multi-page exports arrive as a ZIP</h2>
+    <p>A JPG file holds exactly one image. There is no concept of page two inside a JPEG, so a ten-page PDF cannot become a single JPG unless all ten pages are stacked into one very tall image, which is unusable in practice.</p>
+    <p>Browsers also will not let one click quietly trigger ten separate downloads, so the standard approach is to bundle the images into a ZIP archive and hand that over. You unzip it and get page-01.jpg, page-02.jpg and so on, in order. A single-page PDF usually skips the ZIP and hands you the JPG directly, which is why a two-page document behaves differently from a one-page one.</p>
+
+    <h2>Honest limits</h2>
+    <p>The output is a picture. Any text inside it stops being text. You cannot select it, search it, copy it, or have a screen reader read it out. If you need searchable output you want text extraction, not image conversion, and no amount of DPI fixes that.</p>
+    <p>Large files take time. A 200-page colour document at 300 DPI means hundreds of millions of pixels rendered on your laptop, and that costs real seconds and real memory. Your browser is one device with whatever headroom it has; an older phone will feel it. There is also no OCR here. A scanned PDF comes back as a scanned image, still without a text layer.</p>
+
+    <h2>Practical tips</h2>
+    <p><strong>Do not screenshot the page.</strong> It is tempting: open the PDF, grab a screenshot, crop it. The result is whatever your screen happened to be showing, at your screen's resolution, with the viewer's zoom level baked in and possibly the toolbar in the frame. Exporting the page renders it at a known DPI straight from the document's own data, so it is sharper and correctly sized. On text-heavy pages the difference shows immediately.</p>
+    <p><strong>Do not reach for 300 DPI on a long document you only need on screen.</strong> A 200-page report converted at 300 DPI is a large ZIP full of large images that you will only ever view at screen size. 150 DPI, or 96 for thumbnails, gives you files you can actually email. If you only need a few pages, cut the rest first with Remove pages, then convert the short version. If the source PDF is already enormous, <a href="compress-pdf-private.html">compressing it first</a> makes the conversion faster too, and <a href="merge-pdf-without-upload.html">merging several PDFs</a> into one before converting saves you from juggling multiple ZIP files afterwards.</p>
+    <p>Check the page count before you start. Converting 200 pages for a form that asked for one wastes a couple of minutes and a pile of disk space. The free tools on the site are <a href="../pdf-tools/">Merge PDF, Split PDF and Compress PDF</a>; the Pro tools, including PDF to JPG, come with 3 free trial uses, then 5.90 EUR per month, cancel anytime, paid by PayPal, Visa or Mastercard. If you also work with databases, <a href="../">the main tool</a> turns SQL CREATE TABLE statements into an interactive ER diagram, also without uploading anything.</p>
+
+    <div class="post-cta">
+      <h3>Try it, nothing gets uploaded</h3>
+      <p>Pick a resolution, export the pages, download them as images. The PDF never leaves your device.</p>
+      <a class="btn btn-primary" href="../pdf-tools/">Open the PDF tools</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="merge-pdf-without-upload.html">How to merge PDF files without uploading them</a></li>
+        <li><a href="compress-pdf-private.html">Compress a PDF without uploading it</a></li>
+        <li><a href="sql-to-er-diagram.html">From CREATE TABLE to a clear ER diagram</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz · free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL → ER diagram</a>
+  </footer>
+</body>
+</html>

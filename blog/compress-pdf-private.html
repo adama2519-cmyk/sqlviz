@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compress a PDF without uploading it | SQLViz</title>
+  <meta name="description" content="Shrink a PDF in your browser. Why PDFs get bloated, what actually reduces size, and the honest trade-off of client-side compression." />
+  <link rel="canonical" href="https://sqlviz.app/blog/compress-pdf-private.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Compress a PDF without uploading it" />
+  <meta property="og:description" content="Shrink a PDF in your browser, and the honest trade-off involved." />
+  <meta property="og:url" content="https://sqlviz.app/blog/compress-pdf-private.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Compress a PDF without uploading it","description":"Shrink a PDF in your browser, and the honest trade-off involved.","url":"https://sqlviz.app/blog/compress-pdf-private.html","author":{"@type":"Organization","name":"SQLViz"},"publisher":{"@type":"Organization","name":"SQLViz"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://sqlviz.app/blog/compress-pdf-private.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL → ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>Compress a PDF without uploading it</h1>
+    <p class="post-meta">SQLViz · September 2026</p>
+
+    <p>You can shrink a PDF without sending it to anyone. Modern browsers decode and re-encode images natively, so the whole job can run inside a tab on your own machine. For a payslip, a medical record or a signed contract, that is usually the deciding factor.</p>
+
+    <p>It is worth being clear about the compromise, though. A browser compressor does not produce the same output as a server running Ghostscript. Knowing what each one actually does is the difference between a file that shrinks well and a file you should not have touched. You can test it on your own documents with the <a href="../pdf-tools/">PDF tools</a>.</p>
+
+    <h2>Why PDFs get big</h2>
+
+    <p>A PDF is a container, not an image format. It stores the instructions for drawing each page, and those instructions can be heavy:</p>
+
+    <ul>
+      <li><strong>Full-resolution embedded images.</strong> A phone scan keeps every pixel. A 4000 x 3000 photo at three bytes per pixel is roughly 36 MB of raw data before any compression, and most of that detail is wasted on a printed A4 page.</li>
+      <li><strong>Duplicated fonts.</strong> Fonts are embedded as subsets, and they are not always shared. Merge documents produced by three different tools and you can carry the same typeface three times over.</li>
+      <li><strong>Scans stored page by page.</strong> Forty scanned sheets are forty independent images. The white background and the scanner noise repeat on every one, and that redundancy is never exploited.</li>
+      <li><strong>Leftover objects.</strong> Removed fields, unused resources and old revision data can survive editing and sit in the file doing nothing.</li>
+    </ul>
+
+    <h2>What actually reduces size</h2>
+
+    <p>Only a few things move the needle:</p>
+
+    <ul>
+      <li><strong>Downsampling images.</strong> Replacing a 300 dpi image with a 150 dpi one removes three quarters of the pixels. This is the single biggest lever for scanned files.</li>
+      <li><strong>Re-encoding as JPEG.</strong> Storing an image as a JPEG at reasonable quality is far smaller than the lossless pixel data sitting inside a typical PDF.</li>
+      <li><strong>Dropping unused objects.</strong> Removing orphaned resources and duplicate fonts, which is the work Ghostscript and qpdf are built for.</li>
+    </ul>
+
+    <p>Text-only PDFs are already compact. A 30-page report with no images is often under 500 KB, and there is little left to remove. The files that shrink dramatically are almost always scans and image-heavy layouts.</p>
+
+    <h2>How a browser-based compressor works</h2>
+
+    <p>With no server involved, JavaScript has to do the work. The approach used by client-side tools is to render each page to an image in a canvas, re-encode that image as a JPEG, then rebuild the PDF around the result.</p>
+
+    <p>That gives you one strong lever, image re-encoding, and one real limitation. A browser tab cannot perform the object-level surgery Ghostscript does, so it cannot strip duplicate fonts or unused resources the way a server tool can. On a scan-heavy file the two approaches land in a similar place. On a text-heavy file, a server tool can often do better with no visible loss at all.</p>
+
+    <h2>The trade-off nobody mentions</h2>
+
+    <p>If your PDF has selectable text, that text becomes an image. After compression you can no longer select it, copy it, search it, or have a screen reader read it. The words are pixels.</p>
+
+    <p>That is fine for some documents and a bad idea for others.</p>
+
+    <p><strong>Acceptable:</strong> scans, brochures, menus, flyers, signed forms, and anything you are sending once and will not need to search later.</p>
+
+    <p><strong>Not acceptable:</strong> contracts you may need to search for one clause in three years, invoices you will feed to accounting software, PDFs you plan to keep editing, or anything that has to stay accessible.</p>
+
+    <p>If the words matter, keep an uncompressed copy. For sharing a preview, exporting the pages as images is often a better fit than compressing the whole document, which is the job covered in <a href="pdf-to-jpg-private.html">PDF to JPG without sending the file anywhere</a>.</p>
+
+    <h2>Choosing a quality setting</h2>
+
+    <p>Most compressors expose a JPEG quality level. Start around 70. That is usually indistinguishable from the original at 100% zoom on screen. Push down to 50 for scans where the content is plain text and you accept slightly rough edges around the letters. Below 40 you get visible blockiness around text and colour banding in gradients, which looks worse than the file size saving is worth.</p>
+
+    <p>Check the first page at 100% zoom before accepting the result. JPEG quality fails first on small text, thin lines and hard edges between dark and light.</p>
+
+    <h2>A workflow that avoids regret</h2>
+
+    <p>Never compress the only copy. Duplicate the file, compress the copy, and compare the two side by side. Keep the original until you are sure the compressed version is good enough for its purpose.</p>
+
+    <p>One more thing worth knowing: if the tool hands the file straight back unchanged, that is a result, not a bug. Compressors are supposed to check whether the new file is actually smaller. If re-encoding would make it bigger, the original is returned and you are told so. It usually means the PDF was already efficient, typically a text-only document that had nothing left to give.</p>
+
+    <p>If you are handling several documents at once, the same logic applies to <a href="merge-pdf-without-upload.html">merging PDFs without uploading them</a>, and the client-side tools on <a href="../">sqlviz.app</a> all work the same way: the file stays on your device and nothing is sent anywhere.</p>
+
+    <div class="post-cta">
+      <h3>Try it, nothing gets uploaded</h3>
+      <p>Compress a copy and compare the result side by side with the original. Your file stays on your device.</p>
+      <a class="btn btn-primary" href="../pdf-tools/">Open the PDF tools</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="merge-pdf-without-upload.html">How to merge PDF files without uploading them</a></li>
+        <li><a href="pdf-to-jpg-private.html">Convert PDF to JPG without sending your file anywhere</a></li>
+        <li><a href="sql-to-er-diagram.html">From CREATE TABLE to a clear ER diagram</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz · free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL → ER diagram</a>
+  </footer>
+</body>
+</html>

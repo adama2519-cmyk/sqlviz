@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>From CREATE TABLE to a clear ER diagram | SQLViz</title>
+  <meta name="description" content="Paste your CREATE TABLE statements and get an interactive ER diagram. How to read the result, check the relationships and export it." />
+  <link rel="canonical" href="https://sqlviz.app/blog/sql-to-er-diagram.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="From CREATE TABLE to a clear ER diagram" />
+  <meta property="og:description" content="Paste your CREATE TABLE statements and get an interactive ER diagram." />
+  <meta property="og:url" content="https://sqlviz.app/blog/sql-to-er-diagram.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"From CREATE TABLE to a clear ER diagram","description":"Paste your CREATE TABLE statements and get an interactive ER diagram.","url":"https://sqlviz.app/blog/sql-to-er-diagram.html","author":{"@type":"Organization","name":"SQLViz"},"publisher":{"@type":"Organization","name":"SQLViz"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://sqlviz.app/blog/sql-to-er-diagram.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL → ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>From CREATE TABLE to a clear ER diagram</h1>
+    <p class="post-meta">SQLViz · September 2026</p>
+
+    <p>Most teams do not have a schema diagram. They have a directory of migration files, a couple of stale wiki pages, and one person who remembers that <code>orders.customer_id</code> points at <code>customers.id</code> but is nullable for legacy rows. That works until someone new joins, or a foreign key cannot be added because the data has drifted, or you have to explain the whole data model in a meeting.</p>
+
+    <p>A diagram does not replace the migrations. It gives you the shape in one glance. Twenty tables with their relationships laid out tell you more in five seconds than scrolling a four thousand line migration file tells you in twenty minutes. The point is not prettiness, it is orientation: which table sits at the centre, which ones are lookups, and which ones are orphaned.</p>
+
+    <h2>What the tool reads from your DDL</h2>
+
+    <p>The parser works on <code>CREATE TABLE</code> statements. Paste them and it builds an interactive ER diagram from what is declared:</p>
+
+    <ul>
+      <li>tables and their columns, with data types</li>
+      <li>primary keys, including composite keys and auto-increment</li>
+      <li>foreign keys, both inline <code>REFERENCES</code> and table-level <code>FOREIGN KEY</code> clauses</li>
+      <li>unique constraints and column defaults</li>
+    </ul>
+
+    <p>MySQL, PostgreSQL and SQLite DDL are all supported, so the same paste works whether you exported with <code>mysqldump --no-data</code> or <code>pg_dump --schema-only</code>.</p>
+
+    <pre><code>CREATE TABLE customers (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  email       TEXT NOT NULL UNIQUE,
+  created_at  TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE orders (
+  id           INTEGER PRIMARY KEY,
+  customer_id  INTEGER NOT NULL REFERENCES customers(id),
+  status       TEXT NOT NULL DEFAULT 'pending',
+  total_cents  INTEGER NOT NULL
+);
+
+CREATE TABLE order_items (
+  order_id  INTEGER NOT NULL REFERENCES orders(id),
+  sku       TEXT NOT NULL,
+  qty       INTEGER NOT NULL,
+  PRIMARY KEY (order_id, sku)
+);</code></pre>
+
+    <h2>Paste, read, click</h2>
+
+    <ol>
+      <li>Paste the statements into <a href="../">the SQL to ER diagram tool</a>. The diagram appears as you type. No signup, no upload.</li>
+      <li>Read the layout. Find the busiest nodes. A table that many others reference is your core entity. Tables that nothing points at are lookups or, more often, suspects.</li>
+      <li>Click a table to inspect its columns. Confirm types, check which columns are nullable, and see which ones are keys. This is where you catch a <code>customer_id</code> declared <code>TEXT</code> while <code>customers.id</code> is <code>INTEGER</code>, a join that works in some queries and fails elsewhere.</li>
+    </ol>
+
+    <h2>How to check the diagram is right</h2>
+
+    <p>Do three passes, in this order.</p>
+
+    <p><strong>Count the tables.</strong> Compare the number of boxes against the number of <code>CREATE TABLE</code> statements you pasted. If they differ, you pasted a partial schema, or one statement is wrapped in something the parser skips. Either way the diagram is lying to you, so fix that before trusting anything else.</p>
+
+    <p><strong>Follow every foreign key.</strong> Read each arrow and ask whether the application actually relies on it. A delete path that fans out across four tables is worth knowing about before you run it in production.</p>
+
+    <p><strong>Look for tables with no incoming relationship.</strong> This is the useful pass and the easiest one to skip. A table nothing references is either a lookup table or a table that other code joins to only in the application layer. Those are exactly where schemas drift. Someone adds <code>invoice_id</code> as a plain column, the join lives in an ORM query, and nothing in the database enforces it. Two years later you have orphan rows, and no foreign key error ever told you to care. Mark those tables and read the code that touches them.</p>
+
+    <p>One practical tip: paste the statements in dependency order, parents before children. It does not change what the parser finds, but it lets the layout settle into something readable on the first render, with the tables you care about near the top of the canvas instead of scattered after a re-layout.</p>
+
+    <h2>Choosing an export</h2>
+
+    <ul>
+      <li><strong>SVG</strong> for docs. It is vector, so it stays sharp at any zoom and embeds cleanly in a wiki or an internal README.</li>
+      <li><strong>PNG</strong> for slides and chat. Drop it into a ticket or a chat thread and it renders everywhere without conversion.</li>
+      <li><strong>Mermaid</strong> for a repository. Commit the text and the diagram lives beside the code, so it is diffable in pull requests instead of being a stale image nobody updates.</li>
+      <li><strong>Normalized SQL</strong> for review. Handy when you are cleaning inconsistent formatting across a dump and want one canonical version to read.</li>
+    </ul>
+
+    <p>The tool also exports Prisma schema, TypeScript and Python SQLAlchemy models, which helps when the diagram is the fastest route from an existing database to typed code.</p>
+
+    <h2>The honest limit</h2>
+
+    <p>A diagram shows what the DDL declares and nothing more. Relationships enforced only in application code will not appear. If <code>invoices</code> points at <code>projects</code> through a column with no foreign key, the diagram shows two unrelated tables and you may conclude the model is simpler than it is. It is a map of declared constraints, not of every join in your codebase. Read the two together.</p>
+
+    <h2>Why client-side matters here</h2>
+
+    <p>A production schema under NDA is not something you should paste into a random website. Table and column names leak the business. A payments table with a <code>chargeback_reason</code> column tells a competitor what you handle, and a table named <code>enterprise_contracts</code> tells them who you sell to. Sending that to an unknown server to get a picture is a bad trade.</p>
+
+    <p>SQLViz parses everything in your browser. The schema never leaves the machine, so you can diagram a client's database in the same tab where you read their documents. The <a href="../pdf-tools/">PDF tools</a> follow the same rule: <a href="merge-pdf-without-upload.html">merging PDFs without uploading them</a> and <a href="compress-pdf-private.html">compressing a PDF privately</a> both run locally.</p>
+
+    <p>Start with one schema you already know well. Count the boxes, follow the arrows, and find the table nothing points at. That last one is usually where the real question lives.</p>
+
+    <div class="post-cta">
+      <h3>Try it with your own schema</h3>
+      <p>Paste your CREATE TABLE statements and the diagram appears as you type. Nothing is sent to a server.</p>
+      <a class="btn btn-primary" href="../">Open the SQL tool</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="merge-pdf-without-upload.html">How to merge PDF files without uploading them</a></li>
+        <li><a href="compress-pdf-private.html">Compress a PDF without uploading it</a></li>
+        <li><a href="pdf-to-jpg-private.html">Convert PDF to JPG without sending your file anywhere</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz · free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL → ER diagram</a>
+  </footer>
+</body>
+</html>
