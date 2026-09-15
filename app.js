@@ -69,9 +69,11 @@
     state.edges = buildEdges(parsed.tables);
     state.selected = null;
 
+    const prevPositions = {};
+    if (state.dia) state.dia.nodes.forEach(nd => { prevPositions[nd.table.fullName] = { x: nd.x, y: nd.y }; });
     const W = Math.max(1200, svg.clientWidth * 1.4);
     const H = Math.max(900, svg.clientHeight * 1.4);
-    const dia = Diagram.buildDiagram(svg, { tables: state.tables, edges: state.edges }, { width: W, height: H });
+    const dia = Diagram.buildDiagram(svg, { tables: state.tables, edges: state.edges }, { width: W, height: H, positions: prevPositions });
     state.dia = dia;
     state.vb = Object.assign({}, dia.fit);
     Diagram.setViewBox(svg, state.vb);

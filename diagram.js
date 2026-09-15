@@ -76,14 +76,18 @@
     return { w, h };
   }
 
-  function layout(nodes, edges, W, H) {
+  function layout(nodes, edges, W, H, positions) {
     const n = nodes.length;
     if (n === 0) return;
     if (n === 1) { nodes[0].x = W / 2; nodes[0].y = H / 2; return; }
-    const pos = nodes.map(() => ({
-      x: (Math.random() - 0.5) * Math.min(600, W) + W / 2,
-      y: (Math.random() - 0.5) * Math.min(600, H) + H / 2
-    }));
+    const pos = nodes.map(nd => {
+      const seed = positions && positions[nd.table.fullName];
+      if (seed) return { x: seed.x, y: seed.y };
+      return {
+        x: (Math.random() - 0.5) * Math.min(600, W) + W / 2,
+        y: (Math.random() - 0.5) * Math.min(600, H) + H / 2
+      };
+    });
     const k = Math.sqrt((W * H) / n) * 1.1;
     const ITER = 320;
     for (let it = 0; it < ITER; it++) {
@@ -208,7 +212,13 @@
 
     const W = opts.width || 1400;
     const H = opts.height || 1000;
-    layout(nodes, edges, W, H);
+    const positions = opts.positions || {};
+    const allSeeded = nodes.every(nd => positions[nd.table.fullName]);
+    if (allSeeded) {
+      nodes.forEach(nd => { const p = positions[nd.table.fullName]; nd.x = p.x; nd.y = p.y; });
+    } else {
+      layout(nodes, edges, W, H, positions);
+    }
 
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     nodes.forEach(nd => {
