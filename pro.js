@@ -202,16 +202,20 @@
     const paypalBtn = $('#btn-pay-paypal');
     paypalBtn.disabled = !state.methods.paypal;
     $('#upgrade-note').textContent = state.methods.paypal
-      ? '€5 unlocks unlimited schemas + private sharing. Pay with PayPal or card.'
+      ? '€5.90/month unlocks unlimited schemas, private sharing and all PDF tools. Cancel anytime.'
       : 'Payments are being connected. Check back shortly.';
   }
   function closeUpgrade() { $('#upgrade-modal').hidden = true; }
 
   async function checkout(method) {
     try {
-      const data = await api('/api/checkout/' + method, { method: 'POST', body: '{}' });
+      const path = method === 'paypal' ? '/api/checkout/paypal/subscribe' : '/api/checkout/' + method;
+      const data = await api(path, { method: 'POST', body: '{}' });
       if (method === 'stripe' && data.url) window.location.href = data.url;
-      else if (method === 'paypal' && data.approveUrl) window.location.href = data.approveUrl;
+      else if (method === 'paypal' && data.approveUrl) {
+        if (data.subscriptionId) localStorage.setItem('sqlviz_sub_id', data.subscriptionId);
+        window.location.href = data.approveUrl;
+      }
     } catch (err) { toast(err.message); }
   }
 
@@ -253,14 +257,14 @@
     const qs = new URLSearchParams(location.search);
     if (qs.get('verified') === '1') toast('Email verified — you can sign in now');
     else if (qs.get('verified') === '0') toast('Verification link invalid or expired');
-    const paypalOrderId = qs.get('token');
-    if (paypalOrderId && state.token) {
-      api('/api/checkout/paypal/capture', { method: 'POST', body: JSON.stringify({ orderId: paypalOrderId }) })
+    const paypalSubId = qs.get('subscription_id') || qs.get('token') || localStorage.getItem('sqlviz_sub_id');
+    if (paypalSubId && state.token) {
+      api('/api/subscription/refresh', { method: 'POST', body: JSON.stringify({ subscriptionId: paypalSubId }) })
         .then(() => api('/api/me'))
-        .then(d => { saveAuth(state.token, d.user); toast('Payment complete — you are now Pro!'); })
-        .catch(e => toast('Payment capture failed: ' + e.message));
+        .then(d => { localStorage.removeItem('sqlviz_sub_id'); saveAuth(state.token, d.user); toast(d.user.plan === 'pro' ? 'Subscription active — you are Pro!' : 'Subscription pending — refresh shortly.'); })
+        .catch(e => toast('Could not confirm the subscription: ' + e.message));
     } else if (/[?&]checkout=success/.test(location.search)) {
-      if (state.token) api('/api/me').then(d => { saveAuth(state.token, d.user); toast('Thanks! Your plan is now Pro.'); }).catch(() => {});
+      if (state.token) api('/api/subscription/refresh', { method: 'POST', body: '{}' }).then(() => api('/api/me')).then(d => { saveAuth(state.token, d.user); toast('Thanks! Your plan is now Pro.'); }).catch(() => {});
     }
   }
 

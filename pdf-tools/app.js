@@ -448,9 +448,13 @@
 
   function selectTool(id) {
     if (window.PDFPro && window.PDFPro.isLocked(id)) {
-      window.PDFPro.openUpgrade(TOOLS[id].name);
+      window.PDFPro.requestAccess(id, TOOLS[id].name, () => openTool(id));
       return;
     }
+    openTool(id);
+  }
+
+  function openTool(id) {
     state.tool = id;
     state.files = [];
     const t = TOOLS[id];

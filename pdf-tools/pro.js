@@ -13,6 +13,7 @@
     user: JSON.parse(localStorage.getItem('sqlviz_user') || 'null'),
     methods: { paypal: false },
     authMode: 'login',
+    trialUsed: false,
   };
 
   function isPro() { return !!(state.user && state.user.plan === 'pro'); }
@@ -86,12 +87,30 @@
   }
 
   // ---- modals --------------------------------------------------------------
-  function openUpgrade(toolName) {
+  function openUpgrade(toolName, trialUsed) {
     $('#upgrade-tool').textContent = toolName || 'every PDF tool';
+    state.trialUsed = !!trialUsed;
     refreshUpgradeView();
     $('#upgrade-modal').hidden = false;
   }
   function closeUpgrade() { $('#upgrade-modal').hidden = true; }
+
+  // A few free uses of the paid tools, counted per IP on the server so the same
+  // visitor cannot just keep coming back for free.
+  async function requestAccess(toolId, toolName, onGranted) {
+    if (isPro()) { onGranted(); return; }
+    try {
+      const r = await api('/api/pdf/trial', { method: 'POST', body: JSON.stringify({ tool: toolId }) });
+      if (r.allowed) {
+        toast('Free trial: ' + r.remaining + ' of ' + r.limit + ' uses left after this one');
+        onGranted();
+        return;
+      }
+      openUpgrade(toolName, true);
+    } catch (e) {
+      openUpgrade(toolName, true);
+    }
+  }
 
   function refreshUpgradeView() {
     const signedIn = !!state.user;
@@ -102,10 +121,11 @@
       $('#up-auth-heading').textContent = state.authMode === 'login' ? 'Sign in' : 'Create account';
       $('#up-auth-toggle').textContent = state.authMode === 'login' ? 'New here? Create a free account' : 'Already have an account? Sign in';
     } else {
-      $('#upgrade-text').textContent = 'Unlock all premium PDF tools with a one-time payment — no subscription.';
+      const trialNote = state.trialUsed ? 'Your free trial uses are finished. ' : '';
+      $('#upgrade-text').textContent = trialNote + 'Unlock every PDF tool and unlimited saved schemas for €5.90/month — cancel anytime.';
       const btn = $('#up-paypal');
       btn.disabled = !state.methods.paypal;
-      btn.textContent = state.methods.paypal ? (isPro() ? 'You already have Pro' : 'Pay €5 with PayPal or card') : 'Payments unavailable right now';
+      btn.textContent = state.methods.paypal ? (isPro() ? 'You already have Pro' : 'Subscribe — €5.90/month') : 'Payments unavailable right now';
     }
   }
 
@@ -149,7 +169,8 @@
 
   async function checkout() {
     try {
-      const data = await api('/api/checkout/paypal', { method: 'POST', body: JSON.stringify({ returnPath: '/pdf-tools/' }) });
+      const data = await api('/api/checkout/paypal/subscribe', { method: 'POST', body: JSON.stringify({ returnPath: '/pdf-tools/' }) });
+      if (data.subscriptionId) localStorage.setItem('sqlviz_sub_id', data.subscriptionId);
       if (data.approveUrl) window.location.href = data.approveUrl;
       else toast('Could not start checkout.', true);
     } catch (err) { toast(err.message, true); }
@@ -170,15 +191,23 @@
     api('/api/payment-methods').then((m) => { state.methods = m; refreshUpgradeView(); }).catch(() => {});
 
     const qs = new URLSearchParams(location.search);
-    const orderId = qs.get('token');
-    if (qs.get('checkout') === 'success' && orderId && state.token) {
-      // PayPal redirects back with ?token=<orderId>&PayerID=... → capture it.
-      api('/api/checkout/paypal/capture', { method: 'POST', body: JSON.stringify({ orderId }) })
-        .then(() => api('/api/me'))
-        .then((d) => { saveAuth(state.token, d.user); history.replaceState({}, '', location.pathname); toast('Payment complete — PDF Pro unlocked!'); })
-        .catch((e) => toast('Payment capture failed: ' + e.message, true));
+    const subId = qs.get('subscription_id') || qs.get('token') || localStorage.getItem('sqlviz_sub_id');
+    if (qs.get('checkout') === 'success' && subId && state.token) {
+      // PayPal sends the buyer back with ?subscription_id=... — confirm it server-side.
+      api('/api/subscription/refresh', { method: 'POST', body: JSON.stringify({ subscriptionId: subId }) })
+        .then((d) => api('/api/me').then((m) => ({ d, m })))
+        .then(({ d, m }) => {
+          localStorage.removeItem('sqlviz_sub_id');
+          saveAuth(state.token, m.user);
+          history.replaceState({}, '', location.pathname);
+          toast(d.plan === 'pro' ? 'Subscription active — PDF Pro unlocked!' : 'Subscription status: ' + (d.status || 'pending'));
+        })
+        .catch((e) => toast('Could not confirm the subscription: ' + e.message, true));
     } else if (qs.get('checkout') === 'success' && state.token) {
-      api('/api/me').then((d) => { saveAuth(state.token, d.user); history.replaceState({}, '', location.pathname); toast('Thanks — PDF Pro unlocked.'); }).catch(() => {});
+      api('/api/subscription/refresh', { method: 'POST', body: '{}' })
+        .then(() => api('/api/me'))
+        .then((m) => { saveAuth(state.token, m.user); history.replaceState({}, '', location.pathname); toast('Thanks — your Pro status was refreshed.'); })
+        .catch(() => {});
     } else if (qs.get('checkout') === 'cancel') {
       toast('Checkout cancelled.');
       history.replaceState({}, '', location.pathname);
@@ -202,6 +231,6 @@
     });
   }
 
-  window.PDFPro = { isPro: isPro, isLocked: isLocked, openUpgrade: openUpgrade, renderLocks: renderLocks, state: state, toast: toast };
+  window.PDFPro = { isPro: isPro, isLocked: isLocked, openUpgrade: openUpgrade, requestAccess: requestAccess, renderLocks: renderLocks, state: state, toast: toast };
   document.addEventListener('DOMContentLoaded', wire);
 })();
