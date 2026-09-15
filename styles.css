@@ -332,6 +332,12 @@ textarea::placeholder { color: #4a5568; }
 .d-flags { margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; }
 .d-flags span { font-size: 10px; font-family: var(--mono); color: var(--text-dim); background: var(--panel); border: 1px solid var(--border-strong); border-radius: 4px; padding: 1px 5px; }
 
+/* ---- cross-sell band ---------------------------------------------------- */
+.cross-band { border-top: 1px solid var(--border); background: var(--bg2); padding: 30px 26px; }
+.cross-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+.cross-inner h3 { margin: 0 0 5px; font-size: 17px; }
+.cross-inner p { margin: 0; color: var(--text-dim); font-size: 13.5px; max-width: 660px; }
+
 /* ---- footer ------------------------------------------------------------- */
 .foot {
   display: flex;
