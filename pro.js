@@ -181,15 +181,11 @@
   // ---- upgrade / payments --------------------------------------------------
   function openUpgrade() {
     $('#upgrade-modal').hidden = false;
-    const stripeBtn = $('#btn-pay-stripe');
     const paypalBtn = $('#btn-pay-paypal');
-    stripeBtn.disabled = !state.methods.stripe;
     paypalBtn.disabled = !state.methods.paypal;
-    if (!state.methods.stripe && !state.methods.paypal) {
-      $('#upgrade-note').textContent = 'Payments are being connected. Check back shortly.';
-    } else {
-      $('#upgrade-note').textContent = 'One subscription unlocks unlimited schemas + private sharing.';
-    }
+    $('#upgrade-note').textContent = state.methods.paypal
+      ? '€5 unlocks unlimited schemas + private sharing. Pay with PayPal or card.'
+      : 'Payments are being connected. Check back shortly.';
   }
   function closeUpgrade() { $('#upgrade-modal').hidden = true; }
 
@@ -226,7 +222,6 @@
     $('#schemas-modal').addEventListener('click', e => { if (e.target === $('#schemas-modal')) closeSchemas(); });
     $('#upgrade-close').addEventListener('click', closeUpgrade);
     $('#upgrade-modal').addEventListener('click', e => { if (e.target === $('#upgrade-modal')) closeUpgrade(); });
-    $('#btn-pay-stripe').addEventListener('click', () => checkout('stripe'));
     $('#btn-pay-paypal').addEventListener('click', () => checkout('paypal'));
     $('#btn-go-pro').addEventListener('click', () => { closeSchemas(); openUpgrade(); });
 
