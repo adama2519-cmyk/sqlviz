@@ -123,7 +123,7 @@
       $('#up-auth-toggle').textContent = state.authMode === 'login' ? 'New here? Create a free account' : 'Already have an account? Sign in';
     } else {
       const trialNote = state.trialUsed ? 'Your free trial uses are finished. ' : '';
-      $('#upgrade-text').textContent = trialNote + 'Unlock every PDF tool and unlimited saved schemas for €5.90/month — cancel anytime.';
+      $('#upgrade-text').textContent = trialNote + 'Unlock every PDF tool and unlimited saved schemas for €5.90/month — pay with PayPal, Visa or Mastercard. Cancel anytime.';
       const btn = $('#up-paypal');
       btn.disabled = !state.methods.paypal;
       btn.textContent = state.methods.paypal ? (isPro() ? 'You already have Pro' : 'Subscribe — €5.90/month') : 'Payments unavailable right now';

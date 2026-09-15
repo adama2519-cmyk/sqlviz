@@ -256,6 +256,8 @@ code { font-family: var(--mono); }
 .link-btn { display: block; width: 100%; margin-top: 12px; background: none; border: none; color: var(--accent); font-size: 13px; cursor: pointer; text-align: center; }
 .link-btn:hover { text-decoration: underline; }
 .pro-list { margin: 0 0 14px; padding-left: 18px; color: var(--text); font-size: 13.5px; line-height: 1.9; }
+.pay-note { margin: 10px 0 0; font-size: 12.5px; color: var(--text-dim); text-align: center; }
+.pay-note strong { color: var(--text); }
 
 /* ---- responsive ---- */
 @media (max-width: 960px) { .tool-grid { grid-template-columns: repeat(2, 1fr); } }

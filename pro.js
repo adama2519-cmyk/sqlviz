@@ -202,7 +202,7 @@
     const paypalBtn = $('#btn-pay-paypal');
     paypalBtn.disabled = !state.methods.paypal;
     $('#upgrade-note').textContent = state.methods.paypal
-      ? '€5.90/month unlocks unlimited schemas, private sharing and all PDF tools. Cancel anytime.'
+      ? '€5.90/month unlocks unlimited schemas, private sharing and all PDF tools. Pay with PayPal, Visa or Mastercard — cancel anytime.'
       : 'Payments are being connected. Check back shortly.';
   }
   function closeUpgrade() { $('#upgrade-modal').hidden = true; }
