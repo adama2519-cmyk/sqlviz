@@ -136,7 +136,7 @@
       closeSave();
       toast('Schema saved ✓');
       if (isPublic) {
-        const share = 'https://adama2519-cmyk.github.io/sqlviz/?schema=' + data.schema.slug;
+        const share = 'https://sqlviz.app/?schema=' + data.schema.slug;
         if (navigator.clipboard) navigator.clipboard.writeText(share).then(() => toast('Public link copied: ' + share));
       }
     } catch (err) {
