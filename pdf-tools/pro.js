@@ -117,7 +117,8 @@
     $('#upgrade-auth').hidden = signedIn;
     $('#upgrade-pay').hidden = !signedIn;
     if (!signedIn) {
-      $('#upgrade-text').textContent = 'This tool is part of PDF Pro. Sign in or create a free account to continue.';
+      const trialNote = state.trialUsed ? 'Your free trial uses are finished. ' : '';
+      $('#upgrade-text').textContent = trialNote + 'This tool is part of PDF Pro. Sign in or create a free account, then subscribe for €5.90/month.';
       $('#up-auth-heading').textContent = state.authMode === 'login' ? 'Sign in' : 'Create account';
       $('#up-auth-toggle').textContent = state.authMode === 'login' ? 'New here? Create a free account' : 'Already have an account? Sign in';
     } else {
