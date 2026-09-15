@@ -83,15 +83,33 @@
     try {
       const path = mode === 'login' ? '/api/login' : '/api/register';
       const data = await api(path, { method: 'POST', body: JSON.stringify({ email, password }) });
-      saveAuth(data.token, data.user);
-      closeAuth();
-      toast('Welcome' + (data.user.plan === 'pro' ? ' (Pro)' : '') + '!');
-      if ($('#schemas-modal') && !$('#schemas-modal').hidden) openSchemas();
+      if (mode === 'register') {
+        closeAuth();
+        toast('Check your email to verify your account');
+      } else {
+        saveAuth(data.token, data.user);
+        closeAuth();
+        toast('Welcome' + (data.user.plan === 'pro' ? ' (Pro)' : '') + '!');
+        if ($('#schemas-modal') && !$('#schemas-modal').hidden) openSchemas();
+      }
     } catch (err) {
-      $('#auth-error').textContent = err.message;
+      if (err.status === 403 && err.data && err.data.verify) {
+        $('#auth-error').innerHTML = 'Please verify your email first. <a href="#" id="resend-link">Resend email</a>';
+        const link = $('#resend-link');
+        if (link) link.addEventListener('click', (ev) => { ev.preventDefault(); resendVerification(err.data.email); });
+      } else {
+        $('#auth-error').textContent = err.message;
+      }
     } finally {
       btn.disabled = false;
     }
+  }
+
+  async function resendVerification(email) {
+    try {
+      await api('/api/resend-verification', { method: 'POST', body: JSON.stringify({ email }) });
+      toast('Verification email sent');
+    } catch (e) { toast(e.message); }
   }
 
   // ---- save ----------------------------------------------------------------
@@ -233,6 +251,8 @@
     }
     // handle checkout return: PayPal redirects back with ?token=<orderId>, Stripe with ?checkout=success
     const qs = new URLSearchParams(location.search);
+    if (qs.get('verified') === '1') toast('Email verified — you can sign in now');
+    else if (qs.get('verified') === '0') toast('Verification link invalid or expired');
     const paypalOrderId = qs.get('token');
     if (paypalOrderId && state.token) {
       api('/api/checkout/paypal/capture', { method: 'POST', body: JSON.stringify({ orderId: paypalOrderId }) })
