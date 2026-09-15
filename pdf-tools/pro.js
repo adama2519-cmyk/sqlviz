@@ -216,6 +216,10 @@
     if (state.token) {
       api('/api/me').then((d) => { state.user = d.user; localStorage.setItem('sqlviz_user', JSON.stringify(d.user)); renderAuth(); }).catch(() => clearAuth());
     }
+    // Email CTA links land here with ?upgrade=1 → open the upgrade modal.
+    if (qs.get('upgrade')) {
+      setTimeout(() => { if (!isPro()) openUpgrade(null, true); }, 600);
+    }
 
     $('#upgrade-close').addEventListener('click', closeUpgrade);
     $('#upgrade-modal').addEventListener('click', (e) => { if (e.target === $('#upgrade-modal')) closeUpgrade(); });
