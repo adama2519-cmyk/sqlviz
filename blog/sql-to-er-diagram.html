@@ -130,5 +130,18 @@ CREATE TABLE order_items (
     <span>SQLViz · free, private tools that run in your browser</span>
     <a class="support-btn" href="../">SQL → ER diagram</a>
   </footer>
+  <!-- Cookie-free page counter: aggregate only, no cookies, no personal data -->
+  <script>
+  (function () {
+    try {
+      fetch('https://ghostwhite-dragonfly-572429.hostingersite.com/api/hit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: location.pathname }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  })();
+  </script>
 </body>
 </html>
