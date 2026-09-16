@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to add page numbers to a PDF without uploading it | SQLViz</title>
+  <meta name="description" content="Number the pages of a PDF in the browser: where the number should sit, how to handle the cover page, and the order of edits that avoids renumbering." />
+  <link rel="canonical" href="https://sqlviz.app/blog/add-page-numbers-to-pdf-without-upload.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How to add page numbers to a PDF without uploading it" />
+  <meta property="og:description" content="Add page numbers to a PDF without uploading the file." />
+  <meta property="og:url" content="https://sqlviz.app/blog/add-page-numbers-to-pdf-without-upload.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to add page numbers to a PDF without uploading it", "description": "Number the pages of a PDF in the browser: where the number should sit, how to handle the cover page, and the order of edits that avoids renumbering.", "url": "https://sqlviz.app/blog/add-page-numbers-to-pdf-without-upload.html", "author": {"@type": "Organization", "name": "SQLViz"}, "publisher": {"@type": "Organization", "name": "SQLViz"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://sqlviz.app/blog/add-page-numbers-to-pdf-without-upload.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL &rarr; ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>How to add page numbers to a PDF without uploading it</h1>
+    <p class="post-meta">SQLViz &middot; September 2026</p>
+
+    <p>Page numbers look like a trivial feature until a document has to be filed, signed, referenced or printed. A viewer shows a page counter, but that counter belongs to the program, not to the file. Print the document, email it, or hand it to a portal and the numbers are gone. Then somebody has to write &ldquo;see page 14&rdquo; in an email about a page that has no 14 printed on it.</p>
+
+    <p>Page numbers in the <a href="../pdf-tools/">SQLViz toolkit</a> writes the number into each page at the position and size you choose, inside your browser. Nothing is uploaded, which matters when the document being numbered is a contract, a tender, or anything with a client&rsquo;s name on it.</p>
+
+    <h2>Where the number should sit</h2>
+
+    <p>The right position depends on how the document will be used, and it takes ten seconds to choose well.</p>
+
+    <ul>
+      <li><strong>Bottom centre</strong> is the default that suits reports, proposals and anything read on screen. It is out of the way and impossible to miss.</li>
+      <li><strong>Top right</strong> is standard for drawings, specifications and contracts that get stapled or clipped, because the top right corner stays visible when pages are stacked.</li>
+      <li><strong>Inside a margin, never on the text.</strong> Before you run it, look at the first page and the last page. Where is the existing footer? Where is the letterhead? Put the number in empty space, and leave 15&ndash;20 mm from the paper edge if the document will be hole-punched or stapled &mdash; punching a hole through page 27 is a small mistake that is impossible to unmake.</li>
+    </ul>
+
+    <h2>The cover page problem</h2>
+
+    <p>Almost no report wants &ldquo;1&rdquo; printed on its cover. Page numbers writes on every page, so there are two ways to handle it:</p>
+
+    <ul>
+      <li><strong>Use the start number to keep the printed number honest.</strong> The tool has a start number, so a document whose cover page is already counted can begin at 2. The cover still carries a number, but every number matches the position in the file, which is what anyone citing the document actually needs.</li>
+      <li><strong>Number only the part that needs it.</strong> Split off the cover and the body into two files with a range list of <code>1-1, 2-30</code> (write the real last page number), number only the body starting at 2, then put the cover back in front with the free <a href="merge-pdf-without-upload.html">merge tool</a>. Three steps, and it is the only way to leave the cover completely unnumbered.</li>
+    </ul>
+
+    <p>Roman numerals for front matter are a different situation. Numbering tools work in the numbering system the document uses, so roman front matter is usually produced in the word processor before export, or by building the front matter as its own short document, numbering it, and merging it in place. It is manual work, and it is the reason most teams number everything in arabic and accept that the contents page says &ldquo;3&rdquo; instead of &ldquo;iii&rdquo;.</p>
+
+    <h2>Do the destructive edits first</h2>
+
+    <p>This is the ordering rule that saves the most rework: <strong>delete, reorder, rotate, then number.</strong></p>
+
+    <p>If you number a 40-page document and then remove two pages, every number after the cut is wrong, and the tool cannot know it. You would number the file again &mdash; this time on top of the existing numbers, which leaves you with two numbers on each page. The fix is to go back to the unnumbered copy and start over, which is exactly the work you were trying to avoid.</p>
+
+    <p>So: finish with <a href="remove-pages-from-pdf-private.html">removing pages</a> and rotation, then number what is left. Numbering should be the last step before you send the file, and the file you number should be the one you intend to keep.</p>
+
+    <h2>Step by step</h2>
+
+    <ol>
+      <li><strong>Make a copy of the finished document first.</strong> Keep the unnumbered version until you are happy with the result &mdash; once a number is written into a page, the only clean way to take it back is to start from the copy.</li>
+      <li><strong>Open <a href="../pdf-tools/">the PDF tools page</a></strong> and choose Page numbers.</li>
+      <li><strong>Add the PDF</strong> and choose the position and the font size. Bottom centre is the default; top right suits anything that gets stapled or clipped. Slightly smaller than the body text is almost always right &mdash; the number should be findable, not loud.</li>
+      <li><strong>Run it and download.</strong> Then check three pages: the first numbered page, the page after it, and the last page.</li>
+      <li><strong>Compare against anything that refers to pages.</strong> A table of contents, a signed signature page, a form that says &ldquo;page 2 of 5&rdquo;. If a reference now points at the wrong page, you have found a document problem the numbering just made visible.</li>
+    </ol>
+
+    <h2>What to check on the result</h2>
+
+    <p><strong>Open the file at 100% zoom, not fit-to-window.</strong> Collisions with an existing footer or a date stamp show up at full size and disappear in a zoomed-out thumbnail.</p>
+
+    <p><strong>Look for numbers that were already there.</strong> Many scans and almost all generated invoices already carry a page number. If the document had one, you will now have two, and the new one is drawn into the page so it cannot be toggled off in a viewer. When that happens, do not try to cover it; start again from the original file and either number only the pages that lack a number or accept the existing numbering.</p>
+
+    <p><strong>Print one page.</strong> Screen and paper disagree about margins, and the print preview is the place where a number placed too close to the edge reveals itself.</p>
+
+    <p><strong>Page count versus last printed number.</strong> If the final page prints &ldquo;12&rdquo; and the viewer says 13 pages, there is an unnumbered page somewhere &mdash; often the back of the cover &mdash; and it is worth a minute to find out why.</p>
+
+    <h2>Page numbering is not Bates stamping</h2>
+
+    <p>Legal discovery uses Bates numbering: a unique, prefixed identifier on every page of a large production, so that every page of every document can be cited unambiguously. If the numbering has to be legally defensible &mdash; on a production of thousands of pages, with a prefix and a fixed digit count &mdash; use a tool built for that job. A page-number tool makes a document easier to navigate; it does not create an evidence trail.</p>
+
+    <h2>About the trial and the price</h2>
+
+    <p>Page numbers is one of the five Pro tools and comes with <strong>3 free trial uses per IP address</strong>, which is enough to number three real documents rather than a demo. After that Pro is <strong>&euro;5.90/month</strong> with PayPal or card, cancellable any time, and it covers all eight tools &mdash; page numbers, rotate, remove pages, images to PDF and PDF to JPG, plus the three that are free anyway. Merge, split and compress never count against the trial.</p>
+
+    <p>The numbering happens in your browser, and the file is not transmitted anywhere. That is the whole reason this belongs in a browser tool rather than a converter site: a numbered document is usually one that somebody is about to file, sign or send on, and a copy of it sitting on an unknown server is a risk with no upside. Keep the unnumbered original, download the result straight away, and check it before it leaves your desk.</p>
+    <div class="post-cta">
+      <h3>Number the pages, then file it</h3>
+      <p>Choose the position and size, run it, and download a document with the numbers in the file itself. Pro tool: 3 free trial uses, then &euro;5.90/month.</p>
+      <a class="btn btn-primary" href="../pdf-tools/">Open the PDF tools</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="remove-pages-from-pdf-private.html">How to remove pages from a PDF without uploading it</a></li>
+        <li><a href="split-pdf-without-upload.html">How to split a PDF without uploading it</a></li>
+        <li><a href="merge-pdf-without-upload.html">How to merge PDF files without uploading them</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz &middot; free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL &rarr; ER diagram</a>
+  </footer>
+  <!-- Cookie-free page counter: aggregate only, no cookies, no personal data -->
+  <script>
+  (function () {
+    try {
+      fetch('https://ghostwhite-dragonfly-572429.hostingersite.com/api/hit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: location.pathname }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  })();
+  </script>
+</body>
+</html>

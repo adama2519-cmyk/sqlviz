@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to turn JPG and PNG images into one PDF without uploading them | SQLViz</title>
+  <meta name="description" content="Combine photos and screenshots into one PDF in your browser: page order, page shape, and how to reach a 100 KB or 200 KB upload limit." />
+  <link rel="canonical" href="https://sqlviz.app/blog/jpg-to-pdf-without-upload.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How to turn JPG and PNG images into one PDF without uploading them" />
+  <meta property="og:description" content="Turn a folder of images into one PDF, locally in your browser." />
+  <meta property="og:url" content="https://sqlviz.app/blog/jpg-to-pdf-without-upload.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to turn JPG and PNG images into one PDF without uploading them", "description": "Combine photos and screenshots into one PDF in your browser: page order, page shape, and how to reach a 100 KB or 200 KB upload limit.", "url": "https://sqlviz.app/blog/jpg-to-pdf-without-upload.html", "author": {"@type": "Organization", "name": "SQLViz"}, "publisher": {"@type": "Organization", "name": "SQLViz"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://sqlviz.app/blog/jpg-to-pdf-without-upload.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL &rarr; ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>How to turn JPG and PNG images into one PDF without uploading them</h1>
+    <p class="post-meta">SQLViz &middot; September 2026</p>
+
+    <p>Nobody wants a PDF for its own sake. You want one because the place you are sending it to insists on a single file: an application portal that accepts &ldquo;one PDF, max 2 MB&rdquo;, a landlord who wants the deposit photos in one document, a print shop that charges by the file, an expense system that takes a receipt as a PDF. Your material is a folder of JPGs and PNGs, and the folder has to become a document.</p>
+
+    <p>Images to PDF is one of the five Pro tools in the <a href="../pdf-tools/">SQLViz browser toolkit</a>. It turns JPG and PNG files into one PDF, with one image per page, in the order you set &mdash; and it runs locally, so photos of an ID document, a bank statement or a signed contract never leave your machine.</p>
+
+    <h2>Order is the whole job</h2>
+
+    <p>A stack of photos is not a document until somebody decides what page one is. Two practical points make this painless:</p>
+
+    <ul>
+      <li><strong>Rename the files so the order is obvious: <code>01-front.jpg</code>, <code>02-back.jpg</code>, <code>03-signature.jpg</code>.</strong> File pickers sort alphabetically, and not every picker preserves the order you clicked in. Sorting <code>IMG_4821.jpg</code> before <code>IMG_1002.jpg</code> is a coin flip; <code>01-</code> prefixes remove the guesswork entirely.</li>
+      <li><strong>Reorder inside the tool anyway.</strong> The list you see should be page order top to bottom. Read through it before you run the export; a form that arrives back-to-front costs more time than the ten seconds of checking.</li>
+    </ul>
+
+    <h2>One image, one page &mdash; and the page takes the image&rsquo;s shape</h2>
+
+    <p>A portrait phone photo becomes a portrait page, a wide screenshot becomes a wide page. Mix the two in one document and you get mixed page sizes, which looks odd when printed but is perfectly valid. Scanners and some portals care more than people do. If consistency matters, decide before you export:</p>
+
+    <ul>
+      <li><strong>Photograph or scan consistently.</strong> Holding the phone the same way for every page is the cheapest fix, and it costs nothing.</li>
+      <li><strong>Crop to one aspect ratio.</strong> Cropping every image to the same shape gives you uniform pages, and it also removes the desk, the table edge and the shadow around a document.</li>
+      <li><strong>Choose A4 portrait as the page size.</strong> Instead of letting each page take the image&rsquo;s shape, this fits every image inside an A4 page with the margin you pick &mdash; no margin, small or medium. Nothing is cropped, small images are not stretched to fill the page, and the result prints predictably on any home printer.</li>
+      <li><strong>Accept mixed sizes when nobody will print it.</strong> For an application portal that reads the file on screen, page shape is invisible.</li>
+    </ul>
+
+    <h2>What actually decides the file size</h2>
+
+    <p>The finished PDF is roughly the sum of the images you put into it, so a document made of eight 12-megapixel phone photos will land around 20&ndash;30 MB. That is normal and it is not a bug in the tool.</p>
+
+    <p>What matters is that a 12-megapixel photo is about 3000&times;4000 pixels, which is roughly 300 dpi at A4 size. That is print quality, far more resolution than any portal needs. Do not fix a size problem by downscaling the source photos by hand: you would be throwing away the only thing that makes a scan readable. Shrink the finished document instead, and let the compressor decide where the waste is.</p>
+
+    <h2>The 100 KB, 200 KB and 300 KB problem</h2>
+
+    <p>Application forms are full of hard limits &mdash; 100 KB, 200 KB, 300 KB, sometimes 2 MB &mdash; and a straight photo export misses them by a factor of a hundred. The sequence that works every time:</p>
+
+    <ol>
+      <li><strong>Build the PDF first</strong> with Images to PDF, one image per page, correct order.</li>
+      <li><strong>Compress it with the free <a href="compress-pdf-private.html">Compress PDF tool</a></strong> at a moderate quality setting.</li>
+      <li><strong>Check the size and the legibility.</strong> Open the compressed file at 100% zoom and read the smallest text on the worst page. Numbers on a receipt and handwritten signatures are the first casualties.</li>
+      <li><strong>Compress harder if needed</strong> and check again. Two or three passes to reach 200 KB is normal for photo-based documents.</li>
+    </ol>
+
+    <p>The order matters: compressing before combining means compressing every image separately and then paying the overhead again inside the PDF. One pass on the finished document is cheaper and gives you one number to check against the portal&rsquo;s limit.</p>
+
+    <h2>Step by step</h2>
+
+    <ol>
+      <li><strong>Open <a href="../pdf-tools/">the PDF tools page</a></strong> and choose Images to PDF. You can keep the network tab open while you work if you want to see for yourself that no file is uploaded.</li>
+      <li><strong>Add the images.</strong> JPG and PNG both work. Drag in a whole selection at once.</li>
+      <li><strong>Fix the order</strong> with the arrows so the list matches the document you have in mind.</li>
+      <li><strong>Choose the page size and margin.</strong> <em>Image size</em> keeps each photo&rsquo;s own shape; <em>A4 portrait</em> gives every page the same dimensions, fitted inside the margin you choose &mdash; small (24 pt) is a good default for anything that will be printed.</li>
+      <li><strong>Run the export</strong> and download the PDF. Then rename it to something a stranger can understand when it arrives in their inbox.</li>
+      <li><strong>Check the result</strong> page by page: count the pages against the number of images, and confirm page one is really page one.</li>
+    </ol>
+
+    <h2>PNG, transparency and screenshots</h2>
+
+    <p>Screenshots are usually PNG and usually convert cleanly, because what they contain is text and flat colour at a sensible resolution. Two things to watch:</p>
+
+    <p><strong>Transparency becomes white, which can erase white elements.</strong> A PNG with a transparent background has no colour behind it, and the converter puts white there. For most screenshots that is exactly what you want. It bites when the image itself contains white or very light content &mdash; a white logo, a pale diagram line, a signature in light grey &mdash; because those elements disappear against the new white background. If your image depends on a dark backdrop, put that backdrop into the image before you export it.</p>
+
+    <p><strong>Screenshots are low-resolution compared to photos.</strong> A full-screen screenshot is around 1920 pixels wide, which is comfortable on screen and thin on paper. If the PDF will be printed, prefer a photo of the original document over a screenshot of a viewer.</p>
+
+    <h2>When you actually need the opposite direction</h2>
+
+    <p>Sometimes the request is a JPG, not a PDF: a form that only accepts images, a thumbnail, a slide. That is the reverse operation, and the honest <a href="pdf-to-jpg-private.html">PDF to JPG guide</a> covers the resolution trade-offs worth knowing before you export a hundred pages into a ZIP of images.</p>
+
+    <h2>About the trial and the price</h2>
+
+    <p>Images to PDF is one of the five Pro tools, and it comes with <strong>3 free trial uses per IP address</strong> &mdash; enough for three real submissions, which is the honest test of whether a tool fits your workflow. After that Pro is <strong>&euro;5.90/month</strong> by PayPal or card, cancellable at any time, covering all eight tools. If all you need is the free set, Merge, Split and Compress stay free forever with no counter and no account.</p>
+
+    <p>Whichever you use, the processing happens on your device. That is the point of picking a browser tool over a converter site for anything with an address, an account number or a signature on it: there is no upload to trust, no retention policy to read, and nothing to take on faith. Keep your originals, download the result before closing the tab, and check it before you send it.</p>
+    <div class="post-cta">
+      <h3>Make one PDF out of your images</h3>
+      <p>Add your JPGs or PNGs, set the page order and export. Images to PDF is a Pro tool with 3 free trial uses, then &euro;5.90/month.</p>
+      <a class="btn btn-primary" href="../pdf-tools/">Open the PDF tools</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="compress-pdf-private.html">Compress a PDF without uploading it</a></li>
+        <li><a href="pdf-to-jpg-private.html">Convert PDF to JPG without sending your file anywhere</a></li>
+        <li><a href="merge-pdf-without-upload.html">How to merge PDF files without uploading them</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz &middot; free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL &rarr; ER diagram</a>
+  </footer>
+  <!-- Cookie-free page counter: aggregate only, no cookies, no personal data -->
+  <script>
+  (function () {
+    try {
+      fetch('https://ghostwhite-dragonfly-572429.hostingersite.com/api/hit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: location.pathname }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  })();
+  </script>
+</body>
+</html>

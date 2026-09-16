@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to rotate a PDF permanently (not just in the viewer) | SQLViz</title>
+  <meta name="description" content="Why your PDF goes back to sideways after you rotate it, how page rotation is stored in the file, and how to fix one page instead of all of them." />
+  <link rel="canonical" href="https://sqlviz.app/blog/rotate-pdf-permanently.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How to rotate a PDF permanently (not just in the viewer)" />
+  <meta property="og:description" content="Fix PDF orientation for real, inside your browser." />
+  <meta property="og:url" content="https://sqlviz.app/blog/rotate-pdf-permanently.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to rotate a PDF permanently (not just in the viewer)", "description": "Why your PDF goes back to sideways after you rotate it, how page rotation is stored in the file, and how to fix one page instead of all of them.", "url": "https://sqlviz.app/blog/rotate-pdf-permanently.html", "author": {"@type": "Organization", "name": "SQLViz"}, "publisher": {"@type": "Organization", "name": "SQLViz"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://sqlviz.app/blog/rotate-pdf-permanently.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL &rarr; ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>How to rotate a PDF permanently (not just in the viewer)</h1>
+    <p class="post-meta">SQLViz &middot; September 2026</p>
+
+    <p>You rotate the page, it looks right, you save, you send it &mdash; and the person on the other end tells you it is still sideways. Nothing went wrong with your save. You rotated the view, and the view belonged to your program, not to the file.</p>
+
+    <p>Fixing the orientation for good means changing the document itself. Rotate PDF is one of the five Pro tools in the <a href="../pdf-tools/">SQLViz toolkit</a>, and it writes the rotation into the file inside your browser, so the result looks the same to everybody who opens it, including printers and automated document systems.</p>
+
+    <h2>Why the viewer rotates and the file does not</h2>
+
+    <p>Every PDF viewer has a rotate control, and in most programs it changes how the page is displayed right now. Close the file, reopen it, and the page is back to the way it was. The bytes on disk were never touched, so anything downstream &mdash; an email attachment, a scanning portal, a print job, a colleague&rsquo;s Adobe Reader &mdash; still sees the original orientation. View rotation is a convenience for reading; it is not a document edit.</p>
+
+    <p>There is a second confusion underneath it. A PDF page can carry its own rotation value, and a viewer can add view rotation on top of that. If the file says &ldquo;90&deg;&rdquo; and your viewer adds another 90&deg;, the page looks upside down and you conclude the file is broken. It is not; the two rotations are simply stacking.</p>
+
+    <p>Rotate PDF works the same way the format does: it <em>adds</em> the angle you choose to the rotation the page already carries. A page marked 90&deg; that you rotate by 90&deg; again ends up at 180&deg;. So if a page comes out wrong after one pass, do not add another turn &mdash; go back to the original file and try the opposite direction. Rotating in a loop is how a page ends up at 270&deg; when all it needed was 90&deg;.</p>
+
+    <h2>How to tell which way a page needs to go</h2>
+
+    <p>Ignore the shape of the page. Landscapes and portraits are both legitimate. Read the content instead:</p>
+
+    <ul>
+      <li><strong>A line of text should run left to right</strong>, and the top of the letters should be up. If you have to tilt your head to the left to read it, the page needs 90&deg; clockwise.</li>
+      <li><strong>The footer is the bottom.</strong> Page numbers, logos and signature blocks belong at the bottom of a correctly oriented page.</li>
+      <li><strong>Tables and letterheads are reliable clues.</strong> A letterhead belongs at the top.</li>
+    </ul>
+
+    <p>Then choose the angle: <strong>90&deg; clockwise</strong>, <strong>180&deg;</strong> for a page that is upside down (the classic back-to-front sheet through a document feeder), and <strong>270&deg;</strong>, which is 90&deg; counter-clockwise.</p>
+
+    <h2>The whole document, or just one page?</h2>
+
+    <p>Rotate PDF turns <em>every page</em> by the angle you choose, which is exactly right when a stack of scans went through the feeder the wrong way up. It is the wrong tool when one page out of forty is sideways.</p>
+
+    <p>For a single page there is a clean workaround using two free tools:</p>
+
+    <ol>
+      <li><strong>Split out the page.</strong> Use the free <a href="split-pdf-without-upload.html">split tool</a> with a range like <code>7</code> to get that page as its own file.</li>
+      <li><strong>Rotate the single page.</strong> Run Rotate PDF on the one-page file. Now the whole file problem becomes the single page problem.</li>
+      <li><strong>Put the document back together.</strong> Use the free <a href="merge-pdf-without-upload.html">merge tool</a> and put the pages in order, with the rotated page in position 7 where it belongs.</li>
+    </ol>
+
+    <p>Three steps instead of one, but each is trivial and you end up with exactly the file you wanted. Rotating every page of the original and then rotating all but one back would take longer and end up with two rounds of damage to fix.</p>
+
+    <h2>Step by step</h2>
+
+    <ol>
+      <li><strong>Open the tools page</strong> at <a href="../pdf-tools/">sqlviz.app/pdf-tools</a> and pick Rotate PDF. Your file stays in the tab; you can watch the network panel and see that nothing carries the document anywhere.</li>
+      <li><strong>Add the PDF.</strong> Drag it in or browse. Large scan files are fine &mdash; the limit is your machine&rsquo;s memory, not a server quota.</li>
+      <li><strong>Choose 90&deg;, 180&deg; or 270&deg;</strong> and run it. The rotated document is built in memory.</li>
+      <li><strong>Download and check.</strong> Open the result in a viewer you did not use for the original, at 100% zoom, and read the bottom of the first page. That is where you see whether the fix landed.</li>
+    </ol>
+
+    <h2>Skew is a different problem</h2>
+
+    <p>Rotation moves in 90&deg; steps. It cannot straighten a page that was fed into the scanner at a three-degree tilt; you will rotate it correctly and the text will still slope. That is skew, and it needs a raster tool: convert the page to an image with the <a href="pdf-to-jpg-private.html">PDF to JPG tool</a>, straighten it in an image editor, then rebuild the document with Images to PDF. Worth doing for a single poorly scanned page, tedious for a whole document &mdash; and sometimes the honest answer is to re-scan the page with a straight edge on the glass.</p>
+
+    <h2>After rotating, check three things</h2>
+
+    <p><strong>Print preview at actual size.</strong> A rotation changes which page edge is which; content close to the margin can end up outside the printable area of a printer that cannot print edge to edge. If something important sits near the edge, preview it before sending the file to print.</p>
+
+    <p><strong>The physical page size.</strong> A page that was A4 portrait and is now rotated is still described as an A4 page, so it will print on A4 &mdash; just in landscape. Some viewers display the dimensions differently and that can look alarming; it is not a change in the paper size.</p>
+
+    <p><strong>The file size.</strong> Rotation normally leaves the size almost untouched, because the page content itself is re-described rather than rebuilt. If a file suddenly doubles after editing, something else happened &mdash; check for an embedded thumbnail or preview being rewritten &mdash; and <a href="compress-pdf-private.html">compressing it</a> will bring it back down.</p>
+
+    <h2>About the trial and the price</h2>
+
+    <p>Rotate PDF is a Pro tool, with <strong>3 free trial uses per IP address</strong> so you can test it on a real sideways scan rather than a demo file. After the trial Pro costs <strong>&euro;5.90/month</strong> with PayPal or card, cancellable whenever you like, and it unlocks all eight tools &mdash; rotate, remove pages, page numbers, images to PDF and PDF to JPG on top of the three that are free anyway.</p>
+
+    <p>Nothing is uploaded at any point, which is the reason the whole toolkit exists: a sideways passport scan, a signed contract or a client&rsquo;s medical report can be fixed without a copy of it sitting on somebody else&rsquo;s server. The trade is that nothing is stored for you either. Download the result before you close the tab, and keep the original until you have checked it.</p>
+    <div class="post-cta">
+      <h3>Make the rotation part of the file</h3>
+      <p>Rotate the pages by 90&deg;, 180&deg; or 270&deg; and download a document that opens the right way for everyone. Pro tool: 3 free trial uses, then &euro;5.90/month.</p>
+      <a class="btn btn-primary" href="../pdf-tools/">Open the PDF tools</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="split-pdf-without-upload.html">How to split a PDF without uploading it</a></li>
+        <li><a href="merge-pdf-without-upload.html">How to merge PDF files without uploading them</a></li>
+        <li><a href="pdf-to-jpg-private.html">Convert PDF to JPG without sending your file anywhere</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz &middot; free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL &rarr; ER diagram</a>
+  </footer>
+  <!-- Cookie-free page counter: aggregate only, no cookies, no personal data -->
+  <script>
+  (function () {
+    try {
+      fetch('https://ghostwhite-dragonfly-572429.hostingersite.com/api/hit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: location.pathname }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  })();
+  </script>
+</body>
+</html>

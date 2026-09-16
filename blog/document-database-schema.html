@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to document a database schema your team will actually read | SQLViz</title>
+  <meta name="description" content="A practical routine for documenting a database schema: what to write per table, where to keep the docs, and how to stop them drifting from the DDL." />
+  <link rel="canonical" href="https://sqlviz.app/blog/document-database-schema.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How to document a database schema your team will actually read" />
+  <meta property="og:description" content="Document a database schema as text that gets reviewed with the code." />
+  <meta property="og:url" content="https://sqlviz.app/blog/document-database-schema.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to document a database schema your team will actually read", "description": "A practical routine for documenting a database schema: what to write per table, where to keep the docs, and how to stop them drifting from the DDL.", "url": "https://sqlviz.app/blog/document-database-schema.html", "author": {"@type": "Organization", "name": "SQLViz"}, "publisher": {"@type": "Organization", "name": "SQLViz"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://sqlviz.app/blog/document-database-schema.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL &rarr; ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>How to document a database schema your team will actually read</h1>
+    <p class="post-meta">SQLViz &middot; September 2026</p>
+
+    <p>Ask five developers which table owns the concept of a customer and you will get two confident answers, one &ldquo;it depends&rdquo;, and two people who quietly open the schema to check. That is the gap schema documentation is supposed to close, and most teams close it badly: a wiki page written during a quiet week two years ago, and a diagram image that no longer matches the migrations.</p>
+
+    <p>Documentation that survives has to be cheap to write, reviewed like code, and short enough to read. Everything below is about getting those three properties, using the DDL you already have as the source of truth.</p>
+
+    <h2>Start with the three questions the document must answer</h2>
+
+    <p>Schemas are big; documentation budgets are not. Write down what people actually ask about:</p>
+
+    <ol>
+      <li><strong>What is this table for, in one sentence?</strong> Not its columns &mdash; its purpose. &ldquo;One row per signed subscription, including cancelled ones&rdquo; answers questions that a column list never will.</li>
+      <li><strong>What happens to this row when the parent is deleted?</strong> Cascade, block, or silently orphaned because the relationship lives in application code. This is the question that prevents production incidents.</li>
+      <li><strong>Which table is the centre of the model?</strong> The one everything else points at. New developers orient themselves around it faster than they will ever tell you.</li>
+    </ol>
+
+    <p>If the document answers those three for the ten tables that matter, it is already better than most company wikis.</p>
+
+    <h2>Three places to keep it, and what each one costs</h2>
+
+    <ul>
+      <li><strong>A wiki page.</strong> Easy to write, easy to read, and it rots in silence. Nobody reviews a wiki edit, and nobody notices when a migration makes it wrong. Costs the least to create and the most to trust.</li>
+      <li><strong>A diagram image in a shared drive.</strong> Good for orientation, terrible for maintenance: it is a binary, so a change is invisible in review, and re-exporting it is a manual job somebody has to remember.</li>
+      <li><strong>Text in the repository.</strong> A Mermaid block in the README, or a <code>docs/schema.mmd</code> file next to the code. It shows up in pull requests, it diffs line by line, GitHub and most internal tools render it, and it lives where developers already are. This is the only option that gets reviewed by accident.</li>
+    </ul>
+
+    <p>Keep the source-of-truth diagram as text in the repository. Use images for slides and onboarding packs, generated from the same text.</p>
+
+    <h2>Generate the diagram from the DDL instead of drawing it</h2>
+
+    <p>Hand-drawn diagrams are wrong the moment a migration lands. Generate instead:</p>
+
+    <ol>
+      <li><strong>Dump the schema without data:</strong> <code>mysqldump --no-data</code>, <code>pg_dump --schema-only</code>, or <code>.schema</code> in SQLite.</li>
+      <li><strong>Paste it into <a href="../">the SQL to ER diagram tool</a></strong> and check the result against the three questions above. The mechanics &mdash; what the parser reads, how to verify the arrows, which export to pick &mdash; are covered in detail in <a href="sql-to-er-diagram.html">From CREATE TABLE to a clear ER diagram</a>.</li>
+      <li><strong>Export Mermaid and commit it</strong> as <code>docs/schema.mmd</code>, with a one-line note in the README saying how to regenerate it. The file is now text that reviewers can read in a diff.</li>
+      <li><strong>Export SVG for the human-facing page</strong> &mdash; the wiki, the onboarding doc, the slide &mdash; and treat it as a build artifact rather than something to be maintained by hand.</li>
+    </ol>
+
+    <p>The point of generating is that the diagram costs a paste, so regenerating it after every schema change is realistic. A diagram that takes half an hour to redraw is a diagram that will be stale within a quarter.</p>
+
+    <h2>The five lines per table that save the most time</h2>
+
+    <p>You do not need to document every column. Document the tables you touch, with five lines each:</p>
+
+    <ul>
+      <li><strong>Purpose</strong> &mdash; one sentence, as above.</li>
+      <li><strong>Owner</strong> &mdash; the service or team that writes to it. When two services write to one table, write that down too; it is a fact people discover painfully.</li>
+      <li><strong>Lifecycle</strong> &mdash; what inserts rows, what deletes them, and how historical rows are archived. Deletion paths are where the surprises live.</li>
+      <li><strong>Columns whose names lie</strong> &mdash; <code>status</code> values that mean something other than they appear, a <code>*_raw</code> column that is not raw, a <code>legacy_*</code> prefix that is still in daily use.</li>
+      <li><strong>Known traps</strong> &mdash; a nullable foreign key, a soft-delete flag no constraint enforces, a column that stores a timestamp in local time. One line each, and they stop being traps.</li>
+    </ul>
+
+    <h2>The drift problem: make the doc a review item</h2>
+
+    <p>Documentation does not rot because people are lazy. It rots because nothing in the workflow asks for it at the moment it changes. Two cheap mechanisms fix that:</p>
+
+    <ul>
+      <li><strong>A line in the migration pull-request template:</strong> &ldquo;Does this change the schema doc? If not, why not?&rdquo; It takes four seconds to answer and turns an invisible task into a visible one.</li>
+      <li><strong>A quarterly pass over the diagram.</strong> Regenerate it from the current DDL, diff it against the committed version, and read the diff. Whatever changed without a note is the drift.</li>
+    </ul>
+
+    <h2>The orphan-table pass</h2>
+
+    <p>Once you have a diagram, look for the tables that nothing references. Each one is either a lookup table or a place where the relationship exists only in application code. Those are the tables where data quality problems accumulate quietly: rows deleted in one service while another still holds the id, joins that work in one code path and fail in another. Write one line of purpose for each orphan and you will have found the parts of the model nobody currently understands.</p>
+
+    <h2>The onboarding test</h2>
+
+    <p>Hand the document and a database connection to someone who has never seen the system, and ask three questions:</p>
+
+    <ul>
+      <li>Where do I find the money that a customer has been charged?</li>
+      <li>What happens if I delete this customer row?</li>
+      <li>Which table would I change to add a feature for a new pricing plan?</li>
+    </ul>
+
+    <p>If they can answer all three within ten minutes, the document works. If they cannot, the missing piece is usually not a column description &mdash; it is the purpose line or the deletion behaviour, which is exactly what the five-line format above asks for.</p>
+
+    <h2>Keep the schema out of random browsers</h2>
+
+    <p>A schema is business intelligence. Table names describe your roadmap, and column names describe your customer relationships: a <code>chargeback_reason</code> column says what you process, an <code>enterprise_contracts</code> table says who you sell to. A production schema under NDA should not be pasted into a website whose retention policy you have not read.</p>
+
+    <p>The <a href="sql-to-er-diagram.html">SQL to ER diagram tool</a> parses in your browser, so the DDL never leaves the machine &mdash; you can watch the network panel while you paste. The <a href="../pdf-tools/">PDF tools</a> follow the same rule, which matters when the schema doc ends up as a PDF attached to a client pack: <a href="merge-pdf-without-upload.html">merging</a> and <a href="compress-pdf-private.html">compressing</a> happen locally too.</p>
+
+    <h2>A 30-minute routine</h2>
+
+    <ol>
+      <li>Dump the schema without data.</li>
+      <li>Paste it, glance at the diagram, spot the orphan tables.</li>
+      <li>Export Mermaid, commit it as <code>docs/schema.mmd</code>, link it from the README.</li>
+      <li>Write the five lines for the two tables you changed most recently.</li>
+      <li>Add the regenerating command to the team&rsquo;s notes, and a schema question to the pull-request template.</li>
+    </ol>
+
+    <p>Half an hour, once, and then fifteen minutes a quarter. That is the difference between a schema diagram people look at and one they learned to ignore.</p>
+    <div class="post-cta">
+      <h3>Turn your schema into a diagram in one paste</h3>
+      <p>Paste your CREATE TABLE statements, check the relationships, then export Mermaid and commit it next to the code. Free, and nothing is sent to a server.</p>
+      <a class="btn btn-primary" href="../">Open the SQL tool</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="sql-to-er-diagram.html">From CREATE TABLE to a clear ER diagram</a></li>
+        <li><a href="compress-pdf-private.html">Compress a PDF without uploading it</a></li>
+        <li><a href="merge-pdf-without-upload.html">How to merge PDF files without uploading them</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz &middot; free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL &rarr; ER diagram</a>
+  </footer>
+  <!-- Cookie-free page counter: aggregate only, no cookies, no personal data -->
+  <script>
+  (function () {
+    try {
+      fetch('https://ghostwhite-dragonfly-572429.hostingersite.com/api/hit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: location.pathname }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  })();
+  </script>
+</body>
+</html>

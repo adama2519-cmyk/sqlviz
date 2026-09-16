@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to remove pages from a PDF without uploading it | SQLViz</title>
+  <meta name="description" content="Delete the pages you do not need from a PDF in the browser. The page list syntax, the printed-numbering trap, and why a signed PDF breaks." />
+  <link rel="canonical" href="https://sqlviz.app/blog/remove-pages-from-pdf-private.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How to remove pages from a PDF without uploading it" />
+  <meta property="og:description" content="Delete pages from a PDF without uploading the file." />
+  <meta property="og:url" content="https://sqlviz.app/blog/remove-pages-from-pdf-private.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to remove pages from a PDF without uploading it", "description": "Delete the pages you do not need from a PDF in the browser. The page list syntax, the printed-numbering trap, and why a signed PDF breaks.", "url": "https://sqlviz.app/blog/remove-pages-from-pdf-private.html", "author": {"@type": "Organization", "name": "SQLViz"}, "publisher": {"@type": "Organization", "name": "SQLViz"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://sqlviz.app/blog/remove-pages-from-pdf-private.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL &rarr; ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>How to remove pages from a PDF without uploading it</h1>
+    <p class="post-meta">SQLViz &middot; September 2026</p>
+
+    <p>Deleting pages is the least glamorous PDF job and the most common one. The scanner added a blank page. The contract came with two pages of boilerplate nobody reads. Somebody printed an internal note and scanned it on top of the signed copy. A supplier sent a 90-page specification and you only have to forward pages 1&ndash;4.</p>
+
+    <p>Every one of those is a two-minute job, and every one of them is a document most people would rather not hand to an unknown upload server. Removing pages is one of the five Pro tools in the <a href="../pdf-tools/">SQLViz PDF toolkit</a>, and it runs entirely inside your browser: the file is read locally, the pages are copied into a new document in memory, and only the result is written to your disk.</p>
+
+    <h2>How the page list works</h2>
+
+    <p>You type the pages you want gone, using the same list syntax as everywhere else: <code>1, 3, 5-7</code> removes page one, page three and pages five to seven, and leaves everything else as a single file. Single numbers and inclusive ranges can be mixed freely, in any order, and the result does not depend on the order you type them in.</p>
+
+    <p>Two habits make it reliable. First, write the list down before you open the tool &mdash; scrolling a viewer and typing at the same time is how you delete page 6 instead of page 8. Second, count the parts: five pages listed means five pages fewer, so the result should report the original count minus five.</p>
+
+    <h2>The trap: printed page numbers are not file positions</h2>
+
+    <p>This is the mistake that costs people real money. A document with a cover page usually shows &ldquo;Page 1&rdquo; printed at the bottom of the second page of the file. If the cover is page 1 in the file and the printed numbering starts after it, every printed number is one position higher than the file position. Delete by the printed numbers and you remove the wrong pages &mdash; possibly the signature page, possibly a page of obligations.</p>
+
+    <p>Before you type a page number, confirm the position in the viewer: most viewers show the current file page in a box or accept a &ldquo;go to page&rdquo; command, and the file page is what the tool counts. Then check the total: if the viewer says 12 pages and the last page prints &ldquo;11&rdquo;, there is one page at the front that is not part of the printed sequence. That single comparison prevents most wrong deletions.</p>
+
+    <h2>Step by step</h2>
+
+    <ol>
+      <li><strong>Keep the original.</strong> Copy it first if it is the only version you have. The tool reads the file you select and writes a new one; it does not modify the original, but your own discipline is the real safety net.</li>
+      <li><strong>Open the tool and add the file.</strong> On <a href="../pdf-tools/">the PDF tools page</a>, pick Remove pages and drag your PDF in.</li>
+      <li><strong>Enter the pages to delete.</strong> Check each number against the file position in your viewer, not against a printed number.</li>
+      <li><strong>Run and download.</strong> What you get is a new PDF with the remaining pages in the original order, named after the source file. Renaming it is your job, and it is worth doing properly &mdash; the tool does not know whether this is version 2 or the final one.</li>
+      <li><strong>Name it as a version.</strong> <code>contract-2026-signed-clean.pdf</code> rather than <code>contract-final-final.pdf</code>. In six months, the name is the only thing telling you which file the client received.</li>
+    </ol>
+
+    <h2>Deleting from a signed PDF invalidates the signature</h2>
+
+    <p>A digital signature covers the exact bytes of the document. Remove a single page and those bytes change, so every viewer will report the signature as invalid or the document as modified. This is not a bug in the tool and there is no way around it: the page is part of what was signed.</p>
+
+    <p>So decide what matters more. If the signature has to hold, the page stays, and the honest options are to ask for a corrected and re-signed copy or to work from the unsigned original. If the content has to go and the signature is a formality, delete the page and expect the signature warning &mdash; then say so in the covering message so nobody discovers it themselves.</p>
+
+    <h2>Do not cover content, delete it</h2>
+
+    <p>People often try to hide a page by drawing a black rectangle over it or stamping &ldquo;void&rdquo; on top. In a PDF that is not redaction. The text is still in the file underneath the rectangle, and copy-paste or any text extractor will happily produce it. Covering a page is a visual trick, not a removal.</p>
+
+    <p>If the content must not leave the building, the page goes. Anything else is a promise you cannot keep.</p>
+
+    <h2>What else changes when a page disappears</h2>
+
+    <ul>
+      <li><strong>Bookmarks and the outline</strong> may keep entries that point at the deleted page, which now lead nowhere. Check the sidebar before filing the result.</li>
+      <li><strong>Internal links</strong> to the removed page &mdash; a table of contents, a &ldquo;see appendix D&rdquo; reference &mdash; become dead. Fix the ones a reader will actually click.</li>
+      <li><strong>Fillable form fields</strong> live on their page, so fields on removed pages are gone with it. Fields on the remaining pages keep working; still worth a click-through before sending.</li>
+      <li><strong>Page labels</strong> (the roman/arabic scheme a viewer shows instead of raw numbers) can survive in a way that no longer matches the content. If the document uses page labels, read the result in a viewer rather than trusting the numbers you see in the file list.</li>
+    </ul>
+
+    <h2>Delete, split, or compress: pick one</h2>
+
+    <p>If you need the removed pages <em>somewhere else</em>, do not delete them &mdash; <a href="split-pdf-without-upload.html">split them out</a> into their own file. If you need several documents joined into one, that is <a href="merge-pdf-without-upload.html">merging</a>. And if the goal was never about particular pages but about a file that is too heavy for email or for an upload limit, deleting pages is the wrong fix; <a href="compress-pdf-private.html">compressing the PDF</a> keeps the content and removes weight.</p>
+
+    <h2>The before-you-send checklist</h2>
+
+    <p>Four checks, twenty seconds, and they catch nearly every mistake:</p>
+
+    <ol>
+      <li><strong>Page count</strong> equals the original minus the pages you listed.</li>
+      <li><strong>Search the result</strong> for a distinctive phrase that was on the deleted page. If Ctrl+F finds it, the page is still in the file or you deleted the wrong one.</li>
+      <li><strong>Read the last page</strong> and the first &mdash; that is where wrong deletions are noticed.</li>
+      <li><strong>Check the file name</strong> against the version you mean to send.</li>
+    </ol>
+
+    <h2>About the trial and the price</h2>
+
+    <p>Remove pages is one of the five Pro tools, so it comes with <strong>3 free trial uses per IP address</strong>. That is deliberate: three real documents are enough to judge whether the tool fits your workflow. After that Pro is <strong>&euro;5.90/month</strong>, paid with PayPal or card and cancellable at any time, and it unlocks all eight PDF tools. Merge, split and compress remain free forever with no counter.</p>
+
+    <p>The privacy side is unchanged either way. Nothing is uploaded, nothing is stored on a server, and there is no account history of your documents &mdash; which also means no undo. Keep the original until you have checked the result, and if you close the tab before downloading, the work is gone and you start over.</p>
+    <div class="post-cta">
+      <h3>Delete the pages you do not need</h3>
+      <p>Type the pages to remove and download the cleaned-up file. Remove pages is a Pro tool with 3 free trial uses, then &euro;5.90/month &mdash; PayPal or card, cancel anytime.</p>
+      <a class="btn btn-primary" href="../pdf-tools/">Open the PDF tools</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="split-pdf-without-upload.html">How to split a PDF without uploading it</a></li>
+        <li><a href="merge-pdf-without-upload.html">How to merge PDF files without uploading them</a></li>
+        <li><a href="compress-pdf-private.html">Compress a PDF without uploading it</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz &middot; free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL &rarr; ER diagram</a>
+  </footer>
+  <!-- Cookie-free page counter: aggregate only, no cookies, no personal data -->
+  <script>
+  (function () {
+    try {
+      fetch('https://ghostwhite-dragonfly-572429.hostingersite.com/api/hit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: location.pathname }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  })();
+  </script>
+</body>
+</html>

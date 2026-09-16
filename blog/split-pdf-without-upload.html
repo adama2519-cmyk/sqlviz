@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to split a PDF without uploading it | SQLViz</title>
+  <meta name="description" content="Split a PDF into single pages or the ranges you choose, entirely inside your browser. Range syntax, output naming, and what splitting cannot fix." />
+  <link rel="canonical" href="https://sqlviz.app/blog/split-pdf-without-upload.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How to split a PDF without uploading it" />
+  <meta property="og:description" content="Split a PDF into pages or ranges without uploading the file." />
+  <meta property="og:url" content="https://sqlviz.app/blog/split-pdf-without-upload.html" />
+  <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to split a PDF without uploading it", "description": "Split a PDF into single pages or the ranges you choose, entirely inside your browser. Range syntax, output naming, and what splitting cannot fix.", "url": "https://sqlviz.app/blog/split-pdf-without-upload.html", "author": {"@type": "Organization", "name": "SQLViz"}, "publisher": {"@type": "Organization", "name": "SQLViz"}, "mainEntityOfPage": {"@type": "WebPage", "@id": "https://sqlviz.app/blog/split-pdf-without-upload.html"}}</script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234b6bd8'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='17' font-weight='bold' fill='white' text-anchor='middle'%3EDB%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="blog.css" />
+</head>
+<body id="top">
+  <nav class="nav">
+    <a class="nav-brand" href="../">SQL<span class="accent">Viz</span></a>
+    <div class="nav-links">
+      <a href="index.html">Blog</a>
+      <a href="../pdf-tools/">PDF tools</a>
+      <a href="../">SQL &rarr; ER diagram</a>
+    </div>
+  </nav>
+
+  <article class="post">
+    <h1>How to split a PDF without uploading it</h1>
+    <p class="post-meta">SQLViz &middot; September 2026</p>
+
+    <p>Splitting is the unglamorous part of working with PDFs. You do it because a 300-page file has to become four documents for four people, because one chapter of a report belongs in an appendix, or because the page you need is page 87 of a scan and nobody wants to scroll to it. The operation is simple; the range list and the file naming are where people lose time.</p>
+
+    <p>The usual online splitter asks for the file first. For a payslip, a medical report or a signed contract, that is an unnecessary exposure: the document goes to a server you do not control, and you have only the site&rsquo;s word for what happens next. A browser can split a PDF by itself. Pages are copied into new documents in memory and only the finished files are written to your disk. That is how the <a href="../pdf-tools/">PDF tools on SQLViz</a> work, and splitting is one of the three free ones, so there is no counter and no account.</p>
+
+    <h2>Three different jobs that all get called &ldquo;split&rdquo;</h2>
+
+    <p>Decide which one you actually want before you touch the file, because the setup is different for each.</p>
+
+    <ul>
+      <li><strong>Every page its own file.</strong> Typical when a single scan contains several unrelated documents &mdash; a batch of receipts, or four signed pages from four different people. A 60-page file gives you 60 PDFs, so they arrive as a ZIP.</li>
+      <li><strong>Ranges.</strong> One output per range: chapters, sections, or the three parts of a tender document that go to three different suppliers.</li>
+      <li><strong>Extract a section.</strong> You want pages 12&ndash;40 out and the rest is irrelevant. Split gives you the section; if you also need the remainder as one file, you either split twice or <a href="remove-pages-from-pdf-private.html">delete the pages you do not need</a> in one pass instead.</li>
+    </ul>
+
+    <h2>How the page range syntax works</h2>
+
+    <p>The list is comma-separated, and a hyphen means an inclusive range. <code>1-3, 7, 12-15</code> produces three files: pages 1&ndash;3, page 7, and pages 12&ndash;15. A few rules worth knowing before you type:</p>
+
+    <ul>
+      <li><strong>Numbers outside the document are ignored, not rejected.</strong> Numbering starts at 1, and an item like page 0 &mdash; or page 40 in a 30-page file &mdash; simply drops out of the list. If you get fewer output files than parts you typed, that is usually the reason.</li>
+      <li><strong>Write both ends of a range.</strong> <code>12-15</code> works, <code>12-</code> does not; there is no open-ended range. And a reversed range is read as ascending, so <code>7-3</code> means pages 3 to 7 rather than three parts in reverse order.</li>
+      <li><strong>The order of the list is the order of the output.</strong> <code>7, 1-3</code> gives you page 7 first. That is occasionally exactly what you want, and a surprise the rest of the time.</li>
+      <li><strong>Overlap duplicates pages.</strong> <code>1-5, 3-8</code> is legal and puts pages 3&ndash;5 in two files. Nothing breaks, but the total page count will not match the original, which is confusing when you check your work later.</li>
+      <li><strong>Count the parts before you run it.</strong> Four commas means five outputs. The download is either one PDF or a ZIP containing exactly as many files as you asked for; if the count disagrees, a range was mistyped.</li>
+    </ul>
+
+    <h2>Step by step</h2>
+
+    <ol>
+      <li><strong>Open the split tool.</strong> Go to <a href="../pdf-tools/">the PDF tools page</a> and choose Split PDF. It is free, with no signup and no trial counter.</li>
+      <li><strong>Add the file.</strong> Drag it in or pick it from the dialog. Nothing is transmitted &mdash; you can confirm that in your browser&rsquo;s network tab.</li>
+      <li><strong>Choose the mode.</strong> <em>One PDF per page</em>, or <em>Page ranges</em> with a list like <code>1-3, 4-6, 10</code>. For a long document, ranges are almost always what you want; one-PDF-per-page mode on 200 pages is 200 downloads in one ZIP.</li>
+      <li><strong>Run it and download.</strong> One output comes as a PDF, several come as a ZIP named after the original file. Save it next to the original rather than into a temporary folder you will have to hunt for later.</li>
+    </ol>
+
+    <h2>What comes out, and why you should rename it immediately</h2>
+
+    <p>Every part is a normal PDF that opens on its own. The combined size of the parts is roughly the size of the original, sometimes a little more: fonts and shared resources get copied into each part, and copies take space. That is expected and not a sign that something went wrong.</p>
+
+    <p>The part that costs people time is naming. The tool names each part after the source file and the pages it holds &mdash; <code>contract-2026-pages-1-3.pdf</code>, <code>contract-2026-page-7.pdf</code> &mdash; and wraps a multi-part result in a ZIP named after the original. That is enough to see what is inside, and still not enough to find the right file in six months. Rename the outputs as you save them &mdash; <code>contract-2026-appendix-b.pdf</code> &mdash; and write the ranges down somewhere, because the file itself will not tell you which pages of the original it contains.</p>
+
+    <h2>Three things splitting does not fix</h2>
+
+    <p><strong>Scanned pages stay images.</strong> If the source was a photocopy, every part is still a photocopy. Ctrl+F finds nothing, because there is no text layer to find. Splitting does not create one; that is OCR, a separate job with its own trade-offs.</p>
+
+    <p><strong>Internal links and the outline can break.</strong> A table of contents entry that pointed to page 40 of the original has no target inside a part that holds pages 10&ndash;20. You will see the same problem with cross-references in a numbered contract. Fix the ones that matter by hand, or keep the parts so that links stay inside the part that contains their target.</p>
+
+    <p><strong>Interactive form fields need checking.</strong> Fillable fields belong to the document rather than to a single page. If your source has them, open each part and click through the fields before you send it to anyone.</p>
+
+    <h2>Choosing the right tool the first time</h2>
+
+    <p>Split is for when you want the pieces. If you only want pages gone, <a href="remove-pages-from-pdf-private.html">Remove pages</a> deletes them in a single pass and leaves one file. If the pieces should become one document again after reordering or rotating, that is what the free <a href="merge-pdf-without-upload.html">merge tool</a> is for. If the file is too heavy to email at all, nothing about splitting helps much; <a href="compress-pdf-private.html">compressing it</a> does.</p>
+
+    <p>And if a PDF asks for a password before it opens, no browser-only tool can read it. You need the password, a version saved without one, and then you can split it.</p>
+
+    <h2>The honest limits</h2>
+
+    <p>Because the work happens on your machine, the ceiling is your own memory rather than a server quota. A laptop handles a big scan comfortably; a phone with a browser full of open tabs may not. If a large split fails, close some tabs and try again, or work in two passes: split pages 1&ndash;100, then 101&ndash;200, then split the parts further.</p>
+
+    <p>There is no undo and no server copy. Close the tab before downloading and the work is gone, so download first and read the parts after. For documents you would not email to a stranger, that trade &mdash; a few seconds of care in exchange for never handing the file over &mdash; is the entire point.</p>
+
+    <p>If you later need the other tools, the five Pro ones &mdash; remove pages, rotate, page numbers, images to PDF and PDF to JPG &mdash; come with 3 free trial uses per IP address, after which Pro is &euro;5.90/month with PayPal or card, cancellable at any time. Merge, split and compress stay free.</p>
+    <div class="post-cta">
+      <h3>Split it in the browser, not on someone&rsquo;s server</h3>
+      <p>Choose single pages or a page range and download the parts. Split PDF is free, no signup, and your file never leaves your device.</p>
+      <a class="btn btn-primary" href="../pdf-tools/">Open the PDF tools</a>
+    </div>
+
+    <div class="post-related">
+      <h2>Related</h2>
+      <ul>
+        <li><a href="remove-pages-from-pdf-private.html">How to remove pages from a PDF without uploading it</a></li>
+        <li><a href="merge-pdf-without-upload.html">How to merge PDF files without uploading them</a></li>
+        <li><a href="add-page-numbers-to-pdf-without-upload.html">How to add page numbers to a PDF without uploading it</a></li>
+      </ul>
+    </div>
+  </article>
+
+  <footer class="foot">
+    <span>SQLViz &middot; free, private tools that run in your browser</span>
+    <a class="support-btn" href="../">SQL &rarr; ER diagram</a>
+  </footer>
+  <!-- Cookie-free page counter: aggregate only, no cookies, no personal data -->
+  <script>
+  (function () {
+    try {
+      fetch('https://ghostwhite-dragonfly-572429.hostingersite.com/api/hit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: location.pathname }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  })();
+  </script>
+</body>
+</html>
